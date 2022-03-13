@@ -1,0 +1,171 @@
+@ Central density of thermal gas
+00 { 587-Byte Prgm }
+01▸LBL "NTH"
+02 MVAR "N"
+03 MVAR "T"
+04 MVAR "MASS"
+05 "Needs TRAPF "
+06 ├"from FORT"
+07 AVIEW
+08 VARMENU "NTH"
+09 STOP
+10 EXITALL
+11 1
+12 X>? "MASS"
+13 GTO 98
+14 X<? "T"
+15 GTO 97
+16 1380649ᴇ-29
+17 RCL× "T"
+18 RCL÷ "MASS"
+19 166053886ᴇ-35
+20 ÷
+21 RCL "TRAPF"
+22 2
+23 ×
+24 PI
+25 ×
+26 X↑2
+27 ÷
+28 SQRT
+29 LSTO "R"
+30 INDEX "R"
+31 1
+32 1
+33 STOIJ
+34 RCLEL
+35 I+
+36 J+
+37 RCLEL
+38 I+
+39 J+
+40 RCLEL
+41 ×
+42 ×
+43 1/X
+44 RCL× "N"
+45 2
+46 PI
+47 ×
+48 1.5
+49 Y↑X
+50 ÷
+51 1ᴇ6
+52 ÷
+53 "nTh(0)="
+54 ARCL ST X
+55 ├" cm↑-3"
+56 ├"[LF]R/S to print"
+57 AVIEW
+58 RCL "R"
+59 X<>Y
+60 STOP
+61 LSTO "N0"
+62 PRON
+63 SF 12
+64 "Thermal gas"
+65 PRA
+66 "==========="
+67 PRA
+68 CF 12
+69 ADV
+70 "Species: "
+71 ARCL "ATOM"
+72 PRA
+73 ADV
+74 "Trap "
+75 ├"frequencies:"
+76 PRA
+77 INDEX "TRAPF"
+78 FIX 03
+79▸LBL 11
+80 "• "
+81 RCLEL
+82 1000
+83 X>Y?
+84 ├"  "
+85 R↓
+86 100
+87 X>Y?
+88 ├" "
+89 R↓
+90 10
+91 X>Y?
+92 ├" "
+93 R↓
+94 ARCL ST X
+95 ├" Hz"
+96 PRA
+97 J+
+98 FC? 77
+99 GTO 11
+100 ADV
+101 "Num. atoms:  "
+102 RCL "N"
+103 AIP
+104 PRA
+105 "Temperature: "
+106 RCL "T"
+107 1ᴇ6
+108 ×
+109 ARCL ST X
+110 ├" μK"
+111 PRA
+112 ADV
+113 "Cloud RMS "
+114 ├"widths:"
+115 PRA
+116 INDEX "R"
+117▸LBL 14
+118 "• "
+119 RCLEL
+120 1ᴇ6
+121 ×
+122 100
+123 X>Y?
+124 ├" "
+125 R↓
+126 10
+127 X>Y?
+128 ├" "
+129 R↓
+130 ARCL ST X
+131 ├" μm"
+132 PRA
+133 J+
+134 FC? 77
+135 GTO 14
+136 ADV
+137 "Central density"
+138 ├":[LF]    "
+139 SCI 03
+140 ARCL "N0"
+141 ├" cm↑-3"
+142 PRA
+143 FIX 03
+144 ADV
+145 "→ "
+146 DATE
+147 ADATE
+148 ├" "
+149 TIME
+150 ATIME24
+151 ├" ←"
+152 PRA
+153 ADV
+154 ADV
+155 ADV
+156 PROFF
+157▸LBL 97
+158 "T must be in K"
+159 AVIEW
+160 CLA
+161 GTO 99
+162▸LBL 98
+163 "MASS must be in"
+164 ├" amu"
+165 AVIEW
+166 CLA
+167▸LBL 99
+168 END
+

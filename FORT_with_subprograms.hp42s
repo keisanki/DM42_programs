@@ -1,0 +1,1463 @@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ FORT: Main FORT calculation program
+
+00 { 3080-Byte Prgm }
+01▸LBL "FORT"
+02 SF 04
+03 SF 05
+04 SF 25
+05 RCL "FTYPE"
+06 FC?C 25
+07 XSTR "1 μm"
+08 STO "FTYPE"
+09 DROP
+10 0
+11 STO "UMIN"
+12 STO "UMAX"
+13 CLST
+14▸LBL A
+15 CLMENU
+16 "H-VLT"
+17 KEY 1 XEQ 11
+18 "V-VLT"
+19 KEY 2 XEQ 12
+20 "CALC"
+21 KEY 3 XEQ B
+22 "G SAG"
+23 KEY 4 XEQ 06
+24 "FREQ"
+25 KEY 5 XEQ D
+26 "PLOT"
+27 KEY 6 XEQ E
+28 KEY 7 GTO a
+29 KEY 8 GTO a
+30 KEY 9 XEQ 99
+31 MENU
+32 GTO 10
+33▸LBL a
+34 CLMENU
+35 "Er"
+36 XSTR "168Er"
+37 X=? "ATOM"
+38 ├"•"
+39 DROP
+40 KEY 1 GTO 41
+41 "Yb"
+42 XSTR "174Yb"
+43 X=? "ATOM"
+44 ├"•"
+45 DROP
+46 KEY 2 GTO 42
+47 "7Li"
+48 XSTR "7Li"
+49 X=? "ATOM"
+50 ├"•"
+51 DROP
+52 KEY 3 GTO 43
+53 "6Li"
+54 XSTR "6Li"
+55 X=? "ATOM"
+56 ├"•"
+57 DROP
+58 KEY 4 GTO 44
+59 CLA
+60 ARCL "FTYPE"
+61 KEY 5 GTO 45
+62 "PRNT"
+63 KEY 6 XEQ 51
+64 KEY 7 GTO A
+65 KEY 8 GTO A
+66 KEY 9 XEQ 99
+67 MENU
+68 GTO 10
+69▸LBL 10
+70 STOP
+71 GTO 10
+72▸LBL 11
+73 INPUT "H-VOLT"
+74 XSTR "1.5 μm"
+75 X≠? "FTYPE"
+76 1
+77 X=? "FTYPE"
+78 2
+79 X<>Y
+80 DROP
+81 RCL "H-VOLT"
+82 XEQ "V2P"
+83 "H-FORT at "
+84 ARCL ST X
+85 ├" W"
+86 AVIEW
+87 RCL "PWRH"
+88 X≠Y?
+89 SF 04
+90 X≠Y?
+91 SF 05
+92 DROP
+93 STO "PWRH"
+94 RTN
+95▸LBL 12
+96 INPUT "V-VOLT"
+97 XSTR "1.5 μm"
+98 X≠? "FTYPE"
+99 3
+100 X=? "FTYPE"
+101 4
+102 X<>Y
+103 DROP
+104 RCL "V-VOLT"
+105 XEQ "V2P"
+106 "V-FORT at "
+107 ARCL ST X
+108 ├" W"
+109 AVIEW
+110 RCL "PWRV"
+111 X≠Y?
+112 SF 04
+113 X≠Y?
+114 SF 05
+115 R↓
+116 STO "PWRV"
+117 RTN
+118▸LBL B
+119 3
+120 1
+121 NEWMAT
+122 STO "VR"
+123 CF 03
+124 CF 02
+125 XEQ C
+126 FS?C 03
+127 RTN
+128 CF 05
+129 RCL "VR"
+130 STO "VRMIN"
+131 SF 01
+132 XEQ "UDERIV"
+133 STO "H"
+134 CF 01
+135 XEQ "UFORT"
+136 1380649ᴇ-29
+137 ÷
+138 1ᴇ6
+139 ×
+140 STO "UMIN"
+141 SF 02
+142 XEQ C
+143 FS?C 03
+144 GTO 21
+145 RCL "VR"
+146 STO "VRMAX"
+147 CF 02
+148 XEQ "UFORT"
+149 1380649ᴇ-29
+150 ÷
+151 1ᴇ6
+152 ×
+153 STO "UMAX"
+154 CF 04
+155▸LBL 21
+156 PSE
+157 XEQ D
+158 XEQ 06
+159 RTN
+160▸LBL C
+161 6
+162 LSTO "N"
+163 30
+164 LSTO "M"
+165 100
+166 FS? 02
+167 +/-
+168 LSTO "VAL"
+169▸LBL 02
+170 XEQ "UFORT"
+171 RCL "VAL"
+172 FS? 02
+173 X<>Y
+174 X<Y?
+175 GTO 01
+176 FC? 02
+177 R↓
+178 LSTO "VAL"
+179 -1
+180 RCL+ "M"
+181 X=0?
+182 GTO 03
+183 LSTO "M"
+184 INDEX "VR"
+185 3
+186 1
+187 STOIJ
+188 RCLEL
+189 2ᴇ-6
+190 -
+191 STOEL
+192 GTO 02
+193▸LBL 01
+194 RCL "N"
+195 X=0?
+196 GTO 08
+197 1
+198 STO- "N"
+199 CF 01
+200 XEQ "UDERIV"
+201 LSTO "J"
+202 SF 01
+203 XEQ "UDERIV"
+204 CF 01
+205 INVRT
+206 RCL "J"
+207 ×
+208 LSTO "DELTA"
+209 STO- "VR"
+210 FNRM
+211 5ᴇ-8
+212 X>Y?
+213 GTO 07
+214 GTO 01
+215▸LBL 03
+216 "No extremum "
+217 ├"found."
+218 AVIEW
+219 CF 02
+220 SF 03
+221 RTN
+222▸LBL 07
+223 "Converged after"
+224 ├" "
+225 6
+226 RCL- "N"
+227 AIP
+228 AVIEW
+229 RTN
+230▸LBL 08
+231 "Not converged"
+232 AVIEW
+233 CF 02
+234 RTN
+235▸LBL 06
+236 CLA
+237 FS? 04
+238 GTO 22
+239 "Trap depth: "
+240 RCL "UMAX"
+241 RCL- "UMIN"
+242 ARCL ST X
+243 ├" μK[LF]"
+244▸LBL 22
+245 FS? 05
+246 RTN
+247 ├"Grav. sag:  "
+248 INDEX "VRMIN"
+249 3
+250 1
+251 STOIJ
+252 RCLEL
+253 1ᴇ6
+254 ×
+255 +/-
+256 ARCL ST X
+257 ├" μm"
+258 AVIEW
+259 RTN
+260▸LBL D
+261 FS? 05
+262 RTN
+263 RCL "H"
+264 RAD
+265 LSTO "A"
+266 INDEX "A"
+267 1
+268 2
+269 STOIJ
+270 RCLEL
+271 X↑2
+272 J+
+273 RCLEL
+274 X↑2
+275 +
+276 I+
+277 RCLEL
+278 X↑2
+279 +
+280 LSTO "P1"
+281 1
+282 1
+283 STOIJ
+284 RCLEL
+285 I+
+286 J+
+287 RCLEL
+288 +
+289 I+
+290 J+
+291 RCLEL
+292 +
+293 3
+294 ÷
+295 LSTO "Q"
+296 1
+297 1
+298 STOIJ
+299 RCLEL
+300 RCL- "Q"
+301 X↑2
+302 I+
+303 J+
+304 RCLEL
+305 RCL- "Q"
+306 X↑2
+307 +
+308 I+
+309 J+
+310 RCLEL
+311 RCL- "Q"
+312 X↑2
+313 +
+314 2
+315 RCL× "P1"
+316 +
+317 6
+318 ÷
+319 SQRT
+320 LSTO "P"
+321 3
+322 3
+323 NEWMAT
+324 LSTO "B"
+325 INDEX "B"
+326 1
+327 1
+328 STOIJ
+329 RCL "Q"
+330 STOEL
+331 I+
+332 J+
+333 STOEL
+334 I+
+335 J+
+336 STOEL
+337 RCL "A"
+338 RCL- "B"
+339 RCL÷ "P"
+340 LSTO "B"
+341 DET
+342 2
+343 ÷
+344 ACOS
+345 3
+346 ÷
+347 LSTO "PHI"
+348 COS
+349 RCL× "P"
+350 2
+351 ×
+352 RCL+ "Q"
+353 LSTO "EIG1"
+354 2
+355 PI
+356 ×
+357 3
+358 ÷
+359 RCL+ "PHI"
+360 COS
+361 RCL× "P"
+362 2
+363 ×
+364 RCL+ "Q"
+365 LSTO "EIG3"
+366 3
+367 RCL× "Q"
+368 RCL- "EIG1"
+369 RCL- "EIG3"
+370 LSTO "EIG2"
+371 DEG
+372 3
+373 1
+374 NEWMAT
+375 STO "TRAPF"
+376 INDEX "TRAPF"
+377 1
+378 1
+379 STOIJ
+380 RCL "EIG1"
+381 STOEL
+382 J+
+383 RCL "EIG2"
+384 STOEL
+385 J+
+386 RCL "EIG3"
+387 STOEL
+388 RCL "TRAPF"
+389 RCL "MASS"
+390 166053886ᴇ-35
+391 ×
+392 ÷
+393 SQRT
+394 2
+395 ÷
+396 PI
+397 ÷
+398 STO "TRAPF"
+399 INDEX "TRAPF"
+400 1
+401 1
+402 STOIJ
+403 CLST
+404 RCLEL
+405 J+
+406 RCLEL
+407 J+
+408 RCLEL
+409 "Trap freqs. "
+410 ├"below (Hz)"
+411 AVIEW
+412 RTN
+413▸LBL E
+414 3
+415 1
+416 NEWMAT
+417 LSTO "VDIR"
+418 STO "VR"
+419 INDEX "VDIR"
+420 3
+421 1
+422 STOIJ
+423 1
+424 STOEL
+425 FS? 04
+426 GTO 30
+427 RCL "VRMIN"
+428 RCL- "VRMAX"
+429 ENTER
+430 FNRM
+431 ÷
+432 LSTO "VDIR"
+433▸LBL 30
+434 3ᴇ-5
+435 STO "XMAX"
+436 -3ᴇ-5
+437 STO "XMIN"
+438 RCL "XMAX"
+439 XEQ c
+440 STO "YMAX"
+441 RCL "XMIN"
+442 XEQ c
+443 STO "YMIN"
+444 RCL "UMIN"
+445 1
+446 -
+447 X<Y?
+448 STO "YMIN"
+449 FS? 06
+450 XEQ d
+451 FS?C 06
+452 RTN
+453 RCL "ResY"
+454 1
+455 -
+456 RCL "YMAX"
+457 RCL- "YMIN"
+458 ÷
+459 STO 10
+460 RCL "XMIN"
+461 STO 11
+462 1
+463 RCL "ResX"
+464 1ᴇ3
+465 ÷
+466 +
+467 STO 12
+468 EXITALL
+469 CLLCD
+470 RCL "UMAX"
+471 X≠0?
+472 XEQ 34
+473 RCL "UMIN"
+474 X≠0?
+475 XEQ 34
+476 INDEX "VRMIN"
+477 3
+478 1
+479 STOIJ
+480 RCLEL
+481 INDEX "VDIR"
+482 3
+483 1
+484 STOIJ
+485 RCLEL
+486 X<>Y
+487 R↓
+488 X<>Y
+489 R↓
+490 ÷
+491 +/-
+492 XEQ 33
+493▸LBL 31
+494 RCL 11
+495 XEQ c
+496 XEQ 32
+497 RCL 12
+498 PIXEL
+499 RCL "XMAX"
+500 RCL- "XMIN"
+501 RCL "ResX"
+502 ÷
+503 STO+ 11
+504 ISG 12
+505 GTO 31
+506 PRLCD
+507 STOP
+508 MENU
+509 RTN
+510▸LBL 32
+511 RCL- "YMIN"
+512 RCL× 10
+513 RCL "ResY"
+514 -
+515 X>0?
+516 CLX
+517 ABS
+518 RTN
+519▸LBL 33
+520 RCL- "XMIN"
+521 RCL "XMAX"
+522 RCL- "XMIN"
+523 ÷
+524 RCL "ResX"
+525 ×
+526 +/-
+527 1
+528 X<>Y
+529 PIXEL
+530 RTN
+531▸LBL 34
+532 XEQ 32
+533 +/-
+534 1
+535 PIXEL
+536 RTN
+537▸LBL c
+538 RCL× "VDIR"
+539 RCL+ "VRMIN"
+540 STO "VR"
+541 XEQ "UFORT"
+542 1380649ᴇ-29
+543 ÷
+544 1ᴇ6
+545 ×
+546 RTN
+547▸LBL 41
+548 166
+549 RCL "POLARI"
+550 X≠Y?
+551 SF 04
+552 X≠Y?
+553 SF 05
+554 R↓
+555 STO "POLARI"
+556 168
+557 STO "MASS"
+558 "168Er"
+559 ASTO "ATOM"
+560 "Set to 168Er"
+561 AVIEW
+562 GTO a
+563▸LBL 42
+564 162.5
+565 RCL "POLARI"
+566 X≠Y?
+567 SF 04
+568 X≠Y?
+569 SF 05
+570 R↓
+571 STO "POLARI"
+572 174
+573 STO "MASS"
+574 "174Yb"
+575 ASTO "ATOM"
+576 "Set to 174Yb"
+577 AVIEW
+578 GTO a
+579▸LBL 43
+580 XSTR "1.5 μm"
+581 X≠? "FTYPE"
+582 269
+583 X=? "FTYPE"
+584 201
+585 X<>Y
+586 DROP
+587 RCL "POLARI"
+588 X≠Y?
+589 SF 04
+590 X≠Y?
+591 SF 05
+592 R↓
+593 STO "POLARI"
+594 7
+595 STO "MASS"
+596 "7Li"
+597 ASTO "ATOM"
+598 "Set to 7Li"
+599 AVIEW
+600 GTO a
+601▸LBL 44
+602 XSTR "1.5 μm"
+603 X≠? "FTYPE"
+604 269
+605 X=? "FTYPE"
+606 201
+607 X<>Y
+608 DROP
+609 RCL "POLARI"
+610 X≠Y?
+611 SF 04
+612 X≠Y?
+613 SF 05
+614 R↓
+615 STO "POLARI"
+616 6
+617 STO "MASS"
+618 "6Li"
+619 ASTO "ATOM"
+620 "Set to 6Li"
+621 AVIEW
+622 GTO a
+623▸LBL 45
+624 "1 μm"
+625 XSTR "1 μm"
+626 X=? "FTYPE"
+627 "1.5 μm"
+628 DROP
+629 SF 04
+630 SF 05
+631 ASTO "FTYPE"
+632 "Set to "
+633 ARCL "FTYPE"
+634 ├" FORT"
+635 AVIEW
+636 GTO a
+637▸LBL 51
+638 PRON
+639 FIX 01
+640 SF 12
+641 "FORT summary"
+642 PRA
+643 "============"
+644 PRA
+645 CF 12
+646 ADV
+647 "Species: "
+648 ARCL "ATOM"
+649 PRA
+650 "FORT: "
+651 ARCL "FTYPE"
+652 PRA
+653 "Polariz.: "
+654 ARCL "POLARI"
+655 ├" a.u."
+656 PRA
+657 FIX 03
+658 ADV
+659 "H-FORT U = "
+660 ARCL "H-VOLT"
+661 ├" V"
+662 PRA
+663 "       P = "
+664 ARCL "PWRH"
+665 ├" W"
+666 PRA
+667 "V-FORT U = "
+668 ARCL "V-VOLT"
+669 ├" V"
+670 PRA
+671 "       P = "
+672 ARCL "PWRV"
+673 ├" W"
+674 PRA
+675 ADV
+676 XEQ 06
+677 ADV
+678 FS? 05
+679 GTO 64
+680 "Trap "
+681 ├"frequencies:"
+682 PRA
+683 INDEX "TRAPF"
+684▸LBL 52
+685 "• "
+686 RCLEL
+687 1000
+688 X>Y?
+689 ├"  "
+690 R↓
+691 100
+692 X>Y?
+693 ├" "
+694 R↓
+695 10
+696 X>Y?
+697 ├" "
+698 R↓
+699 ARCL ST X
+700 ├" Hz"
+701 PRA
+702 J+
+703 FC? 77
+704 GTO 52
+705 ADV
+706▸LBL 64
+707 FIX 01
+708 SF 06
+709 XEQ E
+710 FIX 03
+711 "→ "
+712 DATE
+713 ADATE
+714 ├" "
+715 TIME
+716 ATIME24
+717 ├" ←"
+718 PRA
+719 ADV
+720 ADV
+721 ADV
+722 PROFF
+723 RTN
+724▸LBL d
+725 RCL "GrMod"
+726 LSTO "_GrMod"
+727 0
+728 STO "GrMod"
+729 10ᴇ-6
+730 RCL÷ "ResY"
+731 LSTO "_DX"
+732 RCL "XMIN"
+733 LSTO "_XPOS"
+734 CLLCD
+735 "←Potential"
+736 ├" (μK)"
+737 XEQ 61
+738 PRLCD
+739 CLLCD
+740 1
+741 XEQ 57
+742 XEQ 59
+743 XEQ 60
+744▸LBL 53
+745 RCL "ResY"
+746 1000
+747 ÷
+748 1
+749 +
+750 LSTO "_YSCR"
+751▸LBL 54
+752 RCL "_DX"
+753 STO+ "_XPOS"
+754 XEQ 56
+755 RCL "_XPOS"
+756 X≥? "XMAX"
+757 GTO 55
+758 RCL "_YSCR"
+759 XEQ 58
+760 ISG "_YSCR"
+761 GTO 54
+762 PRLCD
+763 CLLCD
+764 XEQ 59
+765 GTO 53
+766▸LBL 55
+767 RCL "_YSCR"
+768 XEQ 57
+769 SF 01
+770 XEQ 60
+771 PRLCD
+772 CLLCD
+773 2
+774 2
+775 "←Z (μm)"
+776 XEQ "DISPLAY"
+777 PRLCD
+778 ADV
+779 GTO 63
+780▸LBL 56
+781 RCL "_XPOS"
+782 XEQ c
+783 RCL- "YMIN"
+784 X<0?
+785 0
+786 RCL "ResX"
+787 RCL "YMAX"
+788 RCL- "YMIN"
+789 ÷
+790 ×
+791 RCL "_YSCR"
+792 X<>Y
+793 PIXEL
+794 RTN
+795▸LBL 57
+796 +/-
+797 0
+798 PIXEL
+799 R↓
+800 +/-
+801 RTN
+802▸LBL 58
+803 1
+804 PIXEL
+805 R↓
+806 RCL "ResX"
+807 PIXEL
+808 R↓
+809 RTN
+810▸LBL 59
+811 "××××"
+812 1
+813 2
+814 AGRAPH
+815 1
+816 RCL "ResX"
+817 4
+818 -
+819 AGRAPH
+820 4
+821 +
+822 2
+823 ÷
+824 PIXEL
+825 "←"
+826 1ᴇ6
+827 RCL× "_XPOS"
+828 ARCL ST X
+829 3
+830 1
+831 XEQ "DISPLAY"
+832 RTN
+833▸LBL 60
+834 FUNC 00
+835 "→"
+836 1
+837 +
+838 FC? 01
+839 0
+840 FS? 01
+841 5
+842 -
+843 RCL "ResX"
+844 2
+845 ÷
+846 AGRAPH
+847 X<>Y
+848 FC? 01
+849 0
+850 FS?C 01
+851 2
+852 +
+853 X<>Y
+854 2
+855 ÷
+856 "∫"
+857 AGRAPH
+858 3
+859 ×
+860 AGRAPH
+861 RTN
+862▸LBL 61
+863 RCL "ResX"
+864 XEQ 62
+865 -
+866 2
+867 ÷
+868 1
+869 XEQ "DISPLAY"
+870 1
+871 RCL "ResY"
+872 7
+873 -
+874 "←"
+875 ARCL "YMIN"
+876 XEQ "DISPLAY"
+877 CLA
+878 X<>Y
+879 R↓
+880 RCL "YMAX"
+881 RCL+ "YMIN"
+882 2
+883 ÷
+884 ARCL ST X
+885 XEQ 62
+886 X<>Y
+887 "←"
+888 ARCL ST X
+889 FP
+890 X=0?
+891 0
+892 X≠0?
+893 4
+894 X<>Y
+895 R↓
+896 -
+897 2
+898 ÷
+899 +/-
+900 RCL "ResX"
+901 2
+902 ÷
+903 +
+904 X<>Y
+905 XEQ "DISPLAY"
+906 X<>Y
+907 R↓
+908 CLA
+909 RCL "ResX"
+910 ARCL "YMAX"
+911 XEQ 62
+912 -
+913 1
+914 +
+915 X<>Y
+916 "←"
+917 ARCL "YMAX"
+918 XEQ "DISPLAY"
+919 RTN
+920▸LBL 62
+921 ALENG
+922 4
+923 ×
+924 RTN
+925▸LBL 63
+926 RCL "_GrMod"
+927 STO "GrMod"
+928 CLLCD
+929 MENU
+930 RTN
+931▸LBL 99
+932 CF 04
+933 CF 05
+934 CLMENU
+935 EXITALL
+936 END
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ V2P: Convert FORT setpoint voltages to power values. 
+@@@@      Actually just calculates a polynom or arbitrary order. The x value
+@@@@      (that is set voltage) is in ST X. The coefficients of the polynomial
+@@@@      are in a row of the V2P matrix and the row to be used is in ST Y.
+@@@@      The return is the evaluated function (that is power) in ST X.
+
+00 { 65-Byte Prgm }
+01▸LBL "V2P"
+02 LSTO "_V"       @ setpoint voltage from ST X as x value
+03 DROP
+04 INDEX "V2P"     @ contains the coefficients of the polynomial
+05 1
+06 STOIJ           @ get row from (the initial) ST Y
+07 DROP
+08 DROP
+09 RCLEL           @ get zero-order term
+10 J+
+11 FC? 76
+12 XEQ 01          @ process higher orders if available
+13 GTO 99
+14▸LBL 01          @ main calculation loop start
+15 RCLIJ
+16 X<>Y
+17 DROP            @ array column position in ST X now
+18 1
+19 -               @ converted to current polynomial order
+20 RCL "_V"
+21 X<>Y
+22 Y↑X             @ calculate x^(current polynomial order)
+23 RCLEL
+24 ×               @  multiply with coefficient from array
+25 +
+26 J+
+27 FC? 76
+28 GTO 01          @ proceed with next element if available
+29▸LBL 99
+30 END
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ UDERIV: Calculate Jacobian (FLAG 01 is 0) or Hessian (FLAG 01 is 1) matrix
+@@@@         of crossed FORT potential at position VR
+
+00 { 484-Byte Prgm }
+01▸LBL "UDERIV"
+02 3
+03 1
+04 NEWMAT
+05 LSTO "VDER1"    @ VDER1 will hold Jacobian (1st derivative)
+06 5ᴇ-8
+07 STO 10          @ step size for derivative calculation
+08 1
+09 LSTO "COOR"     @ mark axis 1 for direction of derivative calculation
+10 FS? 01
+11 GTO B           @ calculate Hessian instead of Jacobian
+12 XEQ A           @ calculate derivative along direction COOR
+13 2
+14 LSTO "COOR"
+15 XEQ A
+16 3
+17 LSTO "COOR"
+18 XEQ A
+19 RCL "VDER1"     @ put Jacobian vector into ST X
+20 GTO 99
+21▸LBL A           @ calculate 1st derivative along direction COOR
+22 INDEX "VR"
+23 RCL "COOR"
+24 1
+25 STOIJ
+26 RCLEL
+27 RCL+ 10
+28 STOEL           @ choose position along COOR axis plus step size (REG 10)
+29 XEQ "UFORT"
+30 LSTO "VAL1"     @ FORT potential at that point
+31 INDEX "VR"
+32 RCL "COOR"
+33 1
+34 STOIJ
+35 RCLEL
+36 RCL- 10
+37 RCL- 10
+38 STOEL           @ choose position along COOR axis minus step size (REG 10)
+39 XEQ "UFORT"
+40 LSTO "VAL2"
+41 INDEX "VR"      @ FORT potential at that point
+42 RCL "COOR"
+43 1
+44 STOIJ
+45 RCLEL
+46 RCL+ 10
+47 STOEL           @ return VR to initial position
+48 RCL "VAL1"
+49 RCL- "VAL2"
+50 2
+51 ÷
+52 RCL÷ 10         @ calculate derivative from the two potential values
+53 INDEX "VDER1"
+54 RCL "COOR"
+55 1
+56 STOIJ
+57 R↓
+58 R↓
+59 STOEL           @ store derivative into correct position of VDER1 (and ST X)
+60 RTN
+61▸LBL B           @ calculate Hessian matrix (2nd derivatives)
+62 3
+63 3
+64 NEWMAT
+65 LSTO "MDER2"    @ MDER2 will hold Hessian
+66 1
+67 LSTO "COOR"     @ set inner derivative direction to 1st axis
+68 LSTO "C2"       @ set outer derivative direction to 1st axis
+69 XEQ C           @ calculate 2nd derivative: d/(dC2 dCOOR) UFORT(VR)
+70 2
+71 LSTO "C2"       @ set outer derivative direction to 2nd axis
+72 XEQ C           @ calculate 2nd derivative: d/(dC2 dCOOR) UFORT(VR)
+73 3
+74 LSTO "C2"       @ set outer derivative direction to 3rd axis
+75 XEQ C           @ calculate 2nd derivative: d/(dC2 dCOOR) UFORT(VR)
+76 2
+77 LSTO "COOR"
+78 LSTO "C2"
+79 XEQ C
+80 3
+81 LSTO "C2"
+82 XEQ C
+83 3
+84 LSTO "COOR"
+85 LSTO "C2"
+86 XEQ C
+87 INDEX "MDER2"   @ use symmetry of Hessian to get remaining elements
+88 1
+89 2
+90 STOIJ
+91 RCLEL
+92 R↓
+93 X<>Y
+94 STOIJ
+95 R↑
+96 STOEL
+97 1
+98 3
+99 STOIJ
+100 RCLEL
+101 R↓
+102 X<>Y
+103 STOIJ
+104 R↑
+105 STOEL
+106 2
+107 3
+108 STOIJ
+109 RCLEL
+110 R↓
+111 X<>Y
+112 STOIJ
+113 R↑
+114 STOEL
+115 RCL "MDER2"    @ put Hessian matrix into ST X
+116 GTO 99
+117▸LBL C          @ calculate 2nd derivative at position C2
+118 INDEX "VR"
+119 RCL "C2"
+120 1
+121 STOIJ
+122 RCLEL
+123 RCL+ 10
+124 STOEL          @ choose position along C2 axis plus step size (REG 10)
+125 XEQ A
+126 LSTO "VAL1"    @ 1st derivative along COOR at that point
+127 INDEX "VR"
+128 RCL "C2"
+129 1
+130 STOIJ
+131 RCLEL
+132 RCL- 10
+133 RCL- 10
+134 STOEL          @ choose position along C2 axis minus step size (REG 10)
+135 XEQ A
+136 LSTO "VAL2"    @ 1st derivative along COOR at that point
+137 INDEX "VR"
+138 RCL "C2"
+139 1
+140 STOIJ
+141 RCLEL
+142 RCL+ 10
+143 STOEL          @ return VR to initial position
+144 RCL "VAL1"
+145 RCL- "VAL2"
+146 2
+147 ÷
+148 RCL÷ 10        @ calculate 2nd derivative from the two 1st derivatives
+149 INDEX "MDER2"
+150 RCL "COOR"
+151 RCL "C2"
+152 STOIJ
+153 R↓
+154 R↓
+155 STOEL          @ store 2nd derivative into correct position of MDER2
+156 RTN
+157▸LBL 99
+158 END
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ IFORT: Calculate local potential of crossed FORT at position VR
+
+00 { 91-Byte Prgm }
+01▸LBL "UFORT"
+02 XEQ "IFORT"
+03 RCL× "POLARI"   @ polarizability in atomic units
+04 -310572189868ᴇ-50 @ (polarizability a.u.)/(2 epsilon_0 c)
+05 ×
+06 INDEX "VR"
+07 3
+08 1
+09 STOIJ
+10 RCLEL           @ get vertical position from VR
+11 X<>Y
+12 R↓
+13 X<>Y
+14 R↓
+15 9.80665         @ earth acceleration in m/s^2
+16 ×
+17 166053886ᴇ-35   @ 1 amu in kg
+18 ×
+19 RCL "MASS"
+20 ×
+21 +               @ total potential now in ST X
+22 END
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ IFORT: Calculate intensity of crossed FORT at position VR
+
+00 { 293-Byte Prgm }
+01▸LBL "IFORT"
+02 XSTR "1.5 μm"
+03 X=? "FTYPE"
+04 GTO 10          @ branch to LBL 10 for 1.5 µm FORT calculations
+05 RCL "MEH"       @ unit vector of H-FORT direction
+06 STO "ME"
+07 100ᴇ-6
+08 STO "W1"        @ H-FORT waist in horizontal direction
+09 20ᴇ-6
+10 STO "W2"        @ H-FORT waist in vertical direction
+11 1064ᴇ-9
+12 STO "LAMBDA"    @ H-FORT wavelength
+13 RCL "PWRH"
+14 STO "POWER"
+15 XEQ "IGAUSS"
+16 STO 09          @ intensity of H-FORT now in REG 09
+17 RCL "MEV"       @ unit vector of V-FORT direction
+18 STO "ME"
+19 100ᴇ-6
+20 STO "W1"        @ V-FORT waist in direction 1
+21 STO "W2"        @ V-FORT waist in direction 2
+22 1070ᴇ-9
+23 STO "LAMBDA"    @ V-FORT wavelength
+24 RCL "PWRV"
+25 STO "POWER"
+26 XEQ "IGAUSS"    @ intensity of V-FORT now in ST X
+27 RCL+ 09         @ increase ST X by intensity of H-FORT
+28 CLV "W1"
+29 CLV "W2"
+30 CLV "ME"
+31 CLV "POWER"
+32 GTO 99
+33▸LBL 10          @ same program as above but for 1.5 µm FORT
+34 RCL "MEH"
+35 LSTO "ME"
+36 1ᴇ-4
+37 LSTO "W1"
+38 2ᴇ-5
+39 LSTO "W2"
+40 1550.12ᴇ-9
+41 STO "LAMBDA"
+42 RCL "PWRH"
+43 LSTO "POWER"
+44 XEQ "IGAUSS"
+45 STO 09
+46 RCL "MEV"
+47 LSTO "ME"
+48 1ᴇ-4
+49 LSTO "W1"
+50 LSTO "W2"
+51 RCL "PWRV"
+52 LSTO "POWER"
+53 XEQ "IGAUSS"
+54 RCL+ 09
+55▸LBL 99
+56 END
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ IGAUSS: Calculate intensity of single Gaussian beam at position VR
+
+00 { 142-Byte Prgm }
+01▸LBL "IGAUSS"
+02 1
+03 XEQ B
+04 STO 04
+05 2
+06 XEQ B
+07 STO 05
+08 3
+09 XEQ B
+10 STO 06
+11 RCL "W1"
+12 STO "WAIST"
+13 RCL 06
+14 XEQ "WSTZ"
+15 STO 07
+16 RCL "W2"
+17 STO "WAIST"
+18 RCL 06
+19 XEQ "WSTZ"
+20 STO 08
+21 RCL 05
+22 X↑2
+23 -2
+24 ×
+25 RCL 08
+26 X↑2
+27 ÷
+28 E↑X
+29 RCL 04
+30 X↑2
+31 -2
+32 ×
+33 RCL 07
+34 X↑2
+35 ÷
+36 E↑X
+37 ×
+38 RCL× "POWER"
+39 2
+40 ×
+41 PI
+42 ÷
+43 RCL÷ 07
+44 RCL÷ 08
+45 GTO 99
+46▸LBL A           @ get column vector of matrix ME for column ST X
+47 INDEX "ME"
+48 1
+49 X<>Y
+50 STOIJ
+51 3
+52 1
+53 GETM
+54 RTN
+55▸LBL B
+56 XEQ A
+57 TRANS
+58 RCL× "VR"
+59 DET             @ convert 1x1 matrix into a normal number
+60 RTN
+61▸LBL 99
+62 END
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ WSTZ: Calculate beam radius at position ST X from waist
+
+00 { 39-Byte Prgm }
+01▸LBL "WSTZ"
+02 RCL "WAIST"
+03 X↑2
+04 PI
+05 ×
+06 RCL÷ "LAMBDA"
+07 ÷
+08 X↑2
+09 1
+10 +
+11 SQRT
+12 RCL× "WAIST"
+13 END
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ MROT: Create 3x3 rotation matrix from rotation angles in ST X, ST Y, ST Z
+@@@@       See https://en.wikipedia.org/wiki/Rotation_matrix
+@@@@       where \gamma -> ST X, \beta -> ST Y, \alpha -> ST Z
+
+00 { 156-Byte Prgm }
+01▸LBL "MROT"
+02 STO 01          @ ST X -> rotation angle about x
+03 R↓
+04 STO 02          @ ST Y -> rotation angle about y
+05 R↓
+06 STO 03          @ ST Z -> rotation angle about z
+07 3
+08 3
+09 NEWMAT
+10 STO "MROT"      @ create new 3x3 matrix -> MROT
+11 INDEX "MROT"
+12 1
+13 1
+14 STOIJ
+15 RCL 03
+16 COS
+17 RCL 02
+18 COS
+19 ×
+20 STOEL           @ -> MROT(1,1)
+21 J+
+22 RCL 02
+23 SIN
+24 RCL 01
+25 SIN
+26 RCL 03
+27 COS
+28 ×
+29 ×
+30 RCL 03
+31 SIN
+32 RCL 01
+33 COS
+34 ×
+35 -
+36 STOEL           @ -> MROT(1,2)
+37 J+
+38 RCL 02
+39 SIN
+40 RCL 03
+41 COS
+42 RCL 01
+43 COS
+44 ×
+45 ×
+46 RCL 03
+47 SIN
+48 RCL 01
+49 SIN
+50 ×
+51 +
+52 STOEL           @ -> MROT(1,3)
+53 J+
+54 RCL 03
+55 SIN
+56 RCL 02
+57 COS
+58 ×
+59 STOEL           @ -> MROT(2,1)
+60 J+
+61 RCL 03
+62 COS
+63 RCL 01
+64 COS
+65 ×
+66 RCL 03
+67 SIN
+68 RCL 02
+69 SIN
+70 RCL 01
+71 SIN
+72 ×
+73 ×
+74 +
+75 STOEL           @ -> MROT(2,2)
+76 J+
+77 RCL 03
+78 SIN
+79 RCL 02
+80 SIN
+81 RCL 01
+82 COS
+83 ×
+84 ×
+85 RCL 01
+86 SIN
+87 RCL 03
+88 COS
+89 ×
+90 -
+91 STOEL           @ -> MROT(2,3)
+92 J+
+93 RCL 02
+94 SIN
+95 +/-
+96 STOEL           @ -> MROT(3,1)
+97 J+
+98 RCL 01
+99 SIN
+100 RCL 02
+101 COS
+102 ×
+103 STOEL          @ -> MROT(3,2)
+104 J+
+105 RCL 02
+106 COS
+107 RCL 01
+108 COS
+109 ×
+110 STOEL          @ -> MROT(3,3)
+111 RCL "MROT"     @ MROT -> ST X
+112 END
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@ Content of not dynamically created helper variables
+
+@@@@ V2P: Fitting coefficients for FORT power conversion polynomial.
+@@@@      rows are: 1 µm H-FORT, 1.5 µm H-VORT, 1 µm V-FORT, 1.5 µm V-FORT
+-0.029478	7.53377	0.0520934	-0.0206148
+-0.029478	7.53377	0.0520934	-0.0206148
+-0.018777	7.51901	-0.156907	0.0436008
+-0.018777	7.51901	-0.156907	0.0436008
+
+@@@@ MEH: Rotation matrix for convertion into H-FORT frame
+@@@@      column 1: direction of waist 1 -> ZS direction (x)
+@@@@      column 2: direction of waist 2 -> vertical direction (z)
+@@@@      column 3: direction of propagation -> H-FORT direction (y)
+@@@@      equals MROT(ST X = 90°, ST Y = ST Z = 0) but for column 3 sign
+1	0	0
+0	0	1
+0	1	0
+
+@@@@ VEH: Rotation matrix for convertion into V-FORT frame
+@@@@      column 1: direction of waist 1 -> ZS direction (x)
+@@@@      column 2: direction of waist 2 -> mostly H-FORT direction (y)
+@@@@      column 3: direction of propagation -> mostly vertical direction (z)
+@@@@      equals MROT(ST X = -10°, ST Y = ST Z = 0)
+1	0	0
+0	0.984807753012208059366743024589523	1.736481776669303488517166267693148e-1
+0	-1.736481776669303488517166267693148e-1	0.984807753012208059366743024589523

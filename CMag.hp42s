@@ -1,0 +1,47 @@
+00 { 206-Byte Prgm }
+01▸LBL "CMag"
+02 MVAR "CMag/V"
+03 MVAR "B/G"
+04 MVAR "Axis"
+05 1
+06 X=? "Axis"
+07 GTO 11
+08 DROP
+09 2
+10 X=? "Axis"
+11 GTO 12
+12 DROP
+13 3
+14 X=? "Axis"
+15 GTO 13
+16 DROP
+17 XSTR "Invalid axis"
+18 RTNERR IND ST X
+19▸LBL 11
+20 0.664
+21 LSTO "ofst"
+22 0.378
+23 LSTO "scale"
+24 GTO 20
+25▸LBL 12
+26 1.731
+27 LSTO "ofst"
+28 0.37
+29 LSTO "scale"
+30 GTO 20
+31▸LBL 13
+32 -1.282
+33 LSTO "ofst"
+34 0.121
+35 LSTO "scale"
+36 GTO 20
+37▸LBL 20
+38 DROPN 3
+39 RCL "CMag/V"
+40 RCL- "ofst"
+41 RCL÷ "scale"
+42 10
+43 ÷
+44 RCL- "B/G"
+45 END
+

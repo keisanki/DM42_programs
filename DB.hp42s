@@ -1,0 +1,131 @@
+LBL "DB"
+CLMENU
+CF 01		// no unit chosen yet
+LBL 00		// show main menu
+	FS? 01		// unit already chosen?
+		AVIEW		// show value with unit from ALPHA register
+	"Vpp"
+	KEY 1 XEQ 01
+	"dBm"
+	KEY 2 XEQ 02
+	"mW"
+	KEY 3 XEQ 03
+	"Vrms"
+	KEY 4 XEQ 04
+	KEY 9 GTO 99	// exit program
+	LBL 10 	// main menu loop
+	MENU
+	SF 22		// asssume that a numeric value was just inputted
+	FS? 01		// has-unit-flag set?
+		CF 22		// set that no numeric value was inputted
+	STOP
+	GTO 10
+LBL 01		// Vpp button pressed
+	FC? 22		// has no number been inputted meanwhile?
+		GTO 11	// no number was inputted -> convert to target unit (Vpk)
+	SF 01		// mark that now a unit has been added
+	STO 02		// remember Vpp in REG 02
+	2
+	÷		// Vpk now in REG 01
+	STO 01		// store base value in REG 01
+	RCL 02		// recall original Vpp value
+	CLA		// clear ALPHA register
+	ARCL ST X	// append target value to ALPHA register
+	├" Vpp"	// append target unit
+	AVIEW		// show ALPHA register
+	RTN
+LBL 11		// convert from base unit (Vpk) to target unit (Vpp)
+	RCL 01		// recall base unit value from REG 01
+	2
+	*		// Vpp now in ST X
+	CLA		// clear ALPHA register
+	ARCL ST X	// append target value to ALPHA register
+	├" Vpp"	// append target unit
+	AVIEW		// show ALPHA register
+	RTN
+LBL 02		// dBm button pressed
+	FC? 22		// has no number been inputted meanwhile?
+		GTO 12	// no number was inputted -> convert to target unit (dBm)
+	SF 01		// mark that now a unit has been added
+	STO 02		// remember dBm in REG 02
+	10
+	-
+	20
+	÷
+	10↑X
+	STO 01		// store base value in REG 01
+	RCL 02		// recall original dBm value
+	CLA
+	ARCL ST X
+	├" dBm"
+	AVIEW
+	RTN
+LBL 12		// convert from Vpp to dBm
+	RCL 01		// recall base unit value from REG 01
+	LOG
+	20
+	*
+	10
+	+		// dBm now in ST X
+	CLA
+	ARCL ST X
+	├" dBm"
+	AVIEW
+	RTN
+LBL 03		// mW button pressed
+	FC? 22
+		GTO 13
+	SF 01
+	STO 02		// remember mW in REG 02
+	1000
+	÷
+	100
+	*
+	SQRT		// Vpp now in ST X
+	STO 01		// store base value in REG 01
+	RCL 02		// recall original mW value
+	CLA
+	ARCL ST X
+	├" mW"
+	AVIEW
+	RTN
+LBL 13		// convert from Vpp to mW
+	RCL 01		// recall base unit value from REG 01
+	X↑2
+	100
+	÷
+	1000
+	*		// mW now in ST X
+	CLA
+	ARCL ST X
+	├" mW"
+	AVIEW
+	RTN
+LBL 04		// Vrms button pressed
+	FC? 22		// has no number been inputted meanwhile?
+		GTO 14	// no number was inputted -> convert to target unit (Vpk)
+	SF 01		// mark that now a unit has been added
+	STO 02		// remember Vrms in REG 02
+	2
+	SQRT
+	*		// Vpk now in REG 01
+	STO 01		// store base value in REG 01
+	RCL 02		// recall original Vrms value
+	CLA		// clear ALPHA register
+	ARCL ST X	// append target value to ALPHA register
+	├" Vrms"	// append target unit
+	AVIEW		// show ALPHA register
+	RTN
+LBL 14		// convert from base unit (Vpk) to target unit (Vrms)
+	RCL 01		// recall base unit value from REG 01
+	2
+	SQRT
+	÷		// Vrms now in ST X
+	CLA		// clear ALPHA register
+	ARCL ST X	// append target value to ALPHA register
+	├" Vrms"	// append target unit
+	AVIEW		// show ALPHA register
+	RTN
+LBL 99		// exit program
+	CLMENU
+	EXITALL

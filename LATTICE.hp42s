@@ -1,0 +1,518 @@
+LBL "LATTICE"
+@ Calculates the Raman-Nath interference pattern of a lattice at
+@ given lattice depth and pulse duration
+@
+@ input:
+@
+@ output:
+@
+@ internally used (global storage):
+@  s(Er): set lattice depth (in Er)
+@  t(µs): set pulse duration (in µs)
+@  REG 00: t = current pulse duration (variable during plotting)
+@  REG 01: lambda = lattice wavelenth
+@  REG 02: m = mass (in amu)
+@  REG 03: s = lattice depth (in Er)
+@  REG 04: hbar^2/(2m)
+@  REG 05: Er = recoil energy (in J)
+@  REG 06: V = interaction energy (in Er)
+@  REG 07: G = reciprocal lattice constant
+@  REG 08: k = lattice momentum
+@
+SF 25		@ ignore one error
+RCL "t(µs)"	@ try to recall a previously set pulse duration
+FC?C 25		@ did an error occur?
+	23.5		@ yes, so assume a standard duration
+STO "t(µs)"
+1ᴇ-6		@ µs
+×
+STO 00		@ store pulse duration from ST X to REG 00
+532ᴇ-9		@ lambda = lattice wavelength
+STO 01
+174		@ m = mass
+STO 02
+SF 25		@ ignore one error
+RCL "s(Er)"	@ try to recall a previously set pulse duration
+FC?C 25		@ did an error occur?
+	15		@ yes, so assume a standard duration	
+STO "s(Er)"	
+STO 03		@ s = lattice depth
+1.054571817ᴇ-34	@ hbar
+X^2
+2
+÷
+RCL÷ 02
+1.6605390666ᴇ-27	@ amu
+÷		@ hbar^2/(2m)
+STO 04
+2
+PI
+×
+RCL÷ 01
+X^2		@ (2 pi / lambda)^2
+×		@ hbar^2/(2m) * (2 pi / lambda)^2
+STO 05		@ Er = recoil energy
+4
+PI
+×
+RCL÷ 01
+STO 07		@ G = 2 pi / a = 4 pi / lambda
+0
+STO 08		@ k = 0
+XEQ A		@ build Hamiltonian and diagonalize
+GTO E		@ go to main menu
+LBL A
+	@ build lattice Hamiltonian (up to N = 3 order) and diagonalize
+	@
+	@ input:
+	@  REG 01 - 09: from main program
+	@  REG 10: j = loop iterator
+	@
+	@ output:
+	@  VD: 1x(2*N+1) vector of diagonal elements
+	@  VE: 1x(2*N+1) vector of off-diagonal elements (last element dummy)
+	@
+	@ internally used (local storage):
+	@  VREGS: temporary storage for REGS during TQLI call
+	RCL 03		@ s = lattice depth
+	-4
+	÷
+	STO 06		@ V = interaction energy (in Er)
+	1
+	7		@ = 2*N + 1
+	NEWMAT
+	STO "VD"
+	STO "VE"
+	-3.003
+	STO 10		@ loop iterator j = -N ... +N
+	INDEX "VD"
+	1
+	1
+	STOIJ
+	LBL 10		@ populate "VD"
+		RCL 04		@ hbar^2/(2m)
+		RCL÷ 05		@ /= Er
+		RCL 08		@ k
+		RCL 10		@ j iterator
+		IP		@ j
+		RCL× 07		@ *= G
+		-		@ k - jG
+		X^2
+		×		@ hbar^2/(2m)/Er * (k-jG)
+		STOEL
+		J+
+		ISG 10		@ for (j=-3; j<=3; j++)
+			GTO 10
+	INDEX "VE"
+	1
+	1
+	STOIJ
+	1.006		@
+	STO 10		@ loop iterator j = 1 ... 2*N
+	RCL 06		@ V
+	LBL 11		@ populate "VE"
+		STOEL
+		J+
+		ISG 10		@ for (j=1; j<=(N-1); j++)
+			GTO 11
+	RCL "REGS"
+	LSTO "VREGS"	@ copy current REGS to VREGS
+	SF 03		@ indicate that last element of VE is zero
+	SF 04           @ request that TQLI initializes the MZ matrix
+	XEQ "TQLI"	@ diagonalize Hamiltonian
+	RCL "VREGS"
+	STO "REGS"	@ recover original REGS from VREGS
+	RTN
+LBL B
+	@ calculate final populations after given pulse time
+	@
+	@ input:
+	@  VD: 1x(2*N+1) vector of eigenvalues
+	@  MZ: (2*N+1)x(2*N+1) eigenvectors (one eigenvector per ROW)
+	@
+	@ internally used (global storage):
+	@  REG 09: iterator j
+	@
+	@ internally used (local storage):
+	@  VTMP: 1x(2*N+1) vector for intermediate calculation steps
+	@
+	@ output:
+	@  ST X: final population of zero-momentum component
+	@
+	RCL "VD"
+	DIM?		@ ST X now contains number of eigenvectors
+	1
+	+
+	2
+	÷		@ ST X now contains the center point
+	1
+	INDEX "MZ"
+	STOIJ		@ pointer on first element of central eigenvector
+	RCL "VD"
+	DIM?
+	GETM		@ retrieve central eigenvector row from MZ
+	1
+	0
+	COMPLEX
+	×		@ convert vector in ST Y into complex matrix
+	LSTO "VTMP"	@ store central (complex) eigenvector in VTMP
+	DIM?
+	1000
+	÷
+	1
+	+
+	STO 09		@ loop iterator j = 1 ... 2*N+1
+	LBL 20		@ put part of time evolution into VTMP
+		INDEX "VD"
+		1
+		RCL 09		@ loop iterator j
+		STOIJ
+		RCLEL		@ j-th eigenvalue
+		RCL× 00		@ *= pulse duration
+		0
+		-1
+		COMPLEX
+		×
+		RCL× 05		@ recoil energy
+		1.054571817ᴇ-34	@ hbar
+		÷		@ *= -i Er / hbar
+		E^X		@ = exp(-i Er t / hbar * eigenvalue)
+		RCLIJ
+		INDEX "VTMP"
+		STOIJ
+		R↓
+		R↓
+		RCLEL		@ j-th component of central eigenvector
+		×		@ -i Er t / hbar * eigenvalue
+		STOEL		@ put into VTMP for later use
+		ISG 09		@ for (j=1; j<=(2*N+1); j++)
+			GTO 20
+	RCL "MZ"
+	RCL "VTMP"
+	TRANS
+	×		@ projection back on plane waves (MZ * VTMP)
+	TRANS
+	COMPLEX		@ -> ST X imaginary part, ST Y real part
+	R↓
+	X^2		@ square of real part
+	R↑
+	X^2		@ square of imaginary part
+	+		@ abs()^2 of complex vector
+	@ get central element
+	RTN
+LBL C
+@ Retrieve an element from a given vector
+@
+@ input:
+@  ST X: element position j to be retrieved (first element is j = 1)
+@  ST Y: 1xN vector
+@
+@ output:
+@  ST X: value at position j
+@  ST Y: original 1xN vector
+@
+@ internally used (local storage):
+@  VTMP: original 1xN vector
+	STO ST L	@ remember desired position in ST L
+	R↓		@ put vector on ST X
+	LSTO "VTMP"	@ store vector in VTMP
+	INDEX "VTMP"
+	LBL 22
+		J+
+		DSE ST L
+			GTO 22
+	J-		@ the loop will have gone one element too far
+	RCLEL		@ put desired element on ST X
+	RTN
+LBL D
+@ Plot evolution of Raman-Nath oscillations
+	LBL 30
+	@ start plot
+	@
+	@ internally used:
+	@  XMIN, XMAX, YMIN, YMAX: plot limits
+	@  REG 10: vertical units/px
+	@  REG 11: current x position (in physical units)
+	@  REG 12: current x position (in pixel) iterator
+	@  REG 13: local extremum position
+	@  REG 14: local extremum value
+	@  FLAG 01: 0 -> 0-order peak, 1 -> first-order peak
+	@  FLAG 02: 0 -> search for local min, 1 -> search for local max
+	@
+	2
+	STO 14		@ initialize extremum value
+	0
+	STO 13		@ initialize extremum position
+	CF 02		@ search for minimum first
+	40ᴇ-6
+	STO "XMAX"	@ plot up to 40 µs
+	0
+	STO "XMIN"	@ start at 0 µs
+	1
+	STO "YMAX"	@ upper limit is population 1.0
+	0
+	STO "YMIN"	@ lower limit is population 0.0
+	RCL "ResY"
+	10
+	-		@ leave 10 pixel free at the bottom
+	1
+	-
+	RCL "YMAX"
+	RCL- "YMIN"
+	÷
+	STO 10		@ vertical units/px
+	RCL "XMIN"
+	STO 11		@ x position (in physical units)
+	1
+	RCL "ResX"
+	1ᴇ3
+	÷
+	+
+	STO 12		@ x position (in pixel) iterator initialized
+	EXITALL
+	CLLCD
+	0
+	XEQ 34		@ horizontal line at population 0
+	1ᴇ-5
+	XEQ 33		@ line at 10 µs
+	2ᴇ-5
+	XEQ 33		@ line at 20 µs
+	3ᴇ-5
+	XEQ 33		@ line at 30 µs
+	RCL "s(Er)"
+	CLA
+	AIP
+	├" E↓←r"
+	15
+	5
+	XEQ "DISPLAY"
+	LBL 31
+		@ main plotting loop
+		RCL 11			@ x position (physical units)
+		SF 01			@ clear flag 01 -> 1st order peak
+		XEQ c			@ evaluate function for plot
+		XEQ 32			@ convert to pixel position
+		RCL 12
+		PIXEL			@ plot point
+		RCL 11			@ x position (physical units)
+		CF 01			@ clear flag 01 -> zero order peak
+		XEQ c			@ evaluate function for plot
+		XEQ 35			@ mark local minima and maxima
+		XEQ 32			@ convert to pixel position
+		RCL 12
+		PIXEL			@ plot point
+		RCL "XMAX"
+		RCL- "XMIN"
+		RCL "ResX"
+		÷
+		STO+ 11			@ go to next point
+		ISG 12			@ not yet at end of plot area?
+			GTO 31
+		CF 02			@ clear extremum marker flag
+		PRLCD
+		STOP
+		MENU
+		RTN
+	LBL 32
+		@ Determine vertical position of pixel from ST X function value
+		@
+		@ input:
+		@  ST X: vertical position (in physical units)
+		@
+		@ output:
+		@  ST X: vertial position on screen (in pixel)
+		RCL- "YMIN"
+		RCL× 10
+		RCL "ResY"
+		10
+		-			@ leave 10 px free at the bottom
+		-
+		X>0?
+			CLX
+		ABS
+		RTN
+	LBL 33
+		@ Draw a vertical line and write its value
+		@
+		@ input:
+		@  ST X: position (in temporal units)
+		@
+		@ output:
+		@  vertical line on screen
+		ENTER		@ get a copy to derive the value string
+		ENTER		@ why do I need a second copy here?
+		1ᴇ6
+		×		@ convert to µs
+		CLA
+		AIP		@ put integer part into Alpha register
+		├" µs"
+		R↓		@ return to original time value
+		RCL- "XMIN"
+		RCL "XMAX"
+		RCL- "XMIN"
+		÷
+		RCL "ResX"
+		×
+		+/-
+		1
+		X<>Y
+		PIXEL
+		2
+		+		@ go two pixel to the right
+		RCL "ResY"
+		7		@ vertical position at 6 pixel below bottom
+		-
+		XEQ "DISPLAY"	@ write time label at above position
+		RTN
+	LBL 34
+		@ Draw a horizontal line
+		@
+		@ input:
+		@  ST X: position (in function units)
+		@
+		@ output:
+		@  horizontal line on screen
+		XEQ 32
+		+/-
+		1
+		PIXEL
+		RTN
+	LBL 35
+		@ Find and mark local minima and maxima
+		@
+		@ input:
+		@  ST X: (zero-order) population
+		@  REG 11: current x position (in physical units)
+		@  REG 13: local extremum candidate position
+		@  REG 14: local extremum candidate value
+		@  FLAG 02: 0 -> search for local min, 1 -> search for local max
+		@
+		@ output:
+		@  ST X: (zero-order) population
+		@  REG 13, 14: updated as necessary
+		@  FLAG 02: updated as necessary
+		@
+		@ internally used (local storage):
+		@  YVAL: copy of initial ST X (population value)
+		LSTO "YVAL"	@ save population value
+		RCL 14		@ get last extremum candidate value
+		FS? 02		@ search for maximum?
+			X<>Y		@ interchange for maximum search
+		X<Y?		@ old value (ST X) < current value (ST Y)?
+			XEQ 36		@ beyond local extremum -> mark it
+		RCL 11
+		STO 13		@ remember current position
+		RCL "YVAL"	@ put value back into ST X
+		STO 14		@ remember current value
+		RTN
+	LBL 36
+		@ Mark a local extremum on graph
+		@
+		@ input:
+		@  REG 12: current x position (in pixel) iterator
+		@  REG 13: local extremum candidate position
+		@  REG 14: local extremum candidate value
+		@  FLAG 02: 0 -> search for local min, 1 -> search for local max
+		@
+		@ output:
+		@  FLAG 02: inverted initial FLAG 02 value
+		CLA		@ clear ALPHA
+		"←"		@ switch to small font
+		RCL 13		@ time position of extremum
+		1ᴇ6
+		×		@ convert to µs
+		AIP		@ put integer part into ALPHA
+		├"."
+		FP
+		10
+		×
+		0.5
+		+
+		AIP		@ put (rounded) first digit into ALPHA
+		RCL 12		@ x position
+		7
+		-		@ back off in x direction a bit
+		RCL 14
+		XEQ 32		@ convert into vertical position
+		FC? 02
+			12		@ vertical offset for minima
+		FS? 02
+			-7		@ vertical offset for maxima
+		-		@ move away from function value a bit
+		XEQ "DISPLAY"	@ write value
+		0		@ FLAG 02 currently cleared marker
+		FS? 02
+			1		@ FLAG 02 currently set marker
+		CF 02		@ clear FLAG 02
+		X=0?		@ was originally cleared?
+			SF 02		@ set FLAT 02
+		RTN
+	LBL c
+		@ Calculate function value at given position
+		@
+		@ input:
+		@  ST X: position (in s)
+		@  FLAG 01: 0 -> 0-order peak, 1 -> first-order peak
+		@
+		@ output:
+		@  ST X: probability
+		@
+		@ internally used (global storage):
+		@  XMIN, XMAX: minimal and maximal vertical value
+		@  YMIN, YMAX: minimal and maximal vertical value
+		STO 00
+		XEQ B	@ get population vector
+		FC? 01
+			4	@ select zero-order peak
+		FS? 01
+			3	@ select first-order peak
+		XEQ C	@ get peak population
+		RTN
+LBL E
+@ Program menu system
+	CLMENU
+	"s"
+	KEY 1 XEQ 41
+	"t"
+	KEY 2 XEQ 42
+	"CALC"
+	KEY 3 XEQ 43
+	"PLOT"
+	KEY 4 XEQ D
+	KEY 9 GTO 99
+	MENU
+	GTO 40
+	LBL 40			@ infinite menu loop
+		STOP
+		GTO 40
+	LBL 41	@ set lattice depth
+		INPUT "s(Er)"
+		STO 03
+		XEQ A	@ recalculate and diagonalize Hamiltonian
+		RTN
+	LBL 42	@ set pulse duration
+		INPUT "t(µs)"
+		1ᴇ-6
+		×
+		STO 00
+		RTN
+	LBL 43	@ calculate population for given s and t
+		"s="
+		RCL "s(Er)"
+		AIP	@ shows only integer part of lattice depth
+		├" Er"
+		├", t="
+		ARCL "t(µs)"
+		├" µs"
+		AVIEW
+		XEQ B	@ get population vector
+		4	@ choose central component
+		XEQ C	@ get component
+		├"[LF]k=0 peak: "
+		ARCL ST X
+		AVIEW
+		RTN
+LBL 99		@ exit program
+	CLMENU
+	EXITALL
+	RTN

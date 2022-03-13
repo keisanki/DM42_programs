@@ -1,0 +1,186 @@
+LBL "FRQCNV"
+@
+@ Base unit is "Hz"
+@
+CLMENU
+CF 01		@ no unit chosen yet
+LBL 00		@ show main menu
+	FS? 01		@ unit already chosen?
+		AVIEW		@ show value with unit from ALPHA register
+	"nm"
+	KEY 1 XEQ 01
+	"THz"
+	KEY 2 XEQ 02
+	"1/cm"
+	KEY 3 XEQ 03
+	"fs"
+	KEY 4 XEQ 04
+	"eV"
+	KEY 5 XEQ 05
+	"J"
+	KEY 6 XEQ 06
+	KEY 9 GTO 99	@ exit program
+	LBL 10 	@ main menu loop
+	MENU
+	SF 22		@ asssume that a numeric value was just inputted
+	FS? 01		@ has-unit-flag set?
+		CF 22		@ set that no numeric value was inputted
+	STOP
+	GTO 10
+LBL 01		@ nm button pressed
+	FC? 22		@ has no number been inputted meanwhile?
+		GTO 11	@ no number was inputted -> convert to target unit (nm)
+	SF 01		@ mark that now a unit has been added
+	STO 02		@ remember nm in REG 02
+	1ᴇ-9
+	*
+	299792458
+	X<>Y
+	÷		@ base unit (Hz) now in REG 01
+	STO 01		@ store base value in REG 01
+	RCL 02		@ recall original nm value
+	CLA		@ clear ALPHA register
+	ARCL ST X	@ append target value to ALPHA register
+	├" nm"		@ append target unit
+	AVIEW		@ show ALPHA register
+	RTN
+LBL 11		@ convert from base unit (Hz) to target unit (nm)
+	RCL 01		@ recall base unit value from REG 01
+	299792458
+	X<>Y
+	÷
+	1ᴇ-9
+	÷		@ nm now in ST X
+	CLA		@ clear ALPHA register
+	ARCL ST X	@ append target value to ALPHA register
+	├" nm"		@ append target unit
+	AVIEW		@ show ALPHA register
+	RTN
+LBL 02		@ THz button pressed
+	FC? 22		@ has no number been inputted meanwhile?
+		GTO 12	@ no number was inputted -> convert to target unit (THz)
+	SF 01		@ mark that now a unit has been added
+	STO 02		@ remember THz in REG 02
+	1ᴇ12
+	*
+	STO 01		@ store base value (Hz) in REG 01
+	RCL 02		@ recall original THz value
+	CLA
+	ARCL ST X
+	├" THz"
+	AVIEW
+	RTN
+LBL 12		@ convert from base unit (Hz) to THz
+	RCL 01		@ recall base unit value from REG 01
+	1ᴇ12
+	÷		@ THz now in ST X
+	CLA
+	ARCL ST X
+	├" THz"
+	AVIEW
+	RTN
+LBL 03		@ 1/cm button pressed
+	FC? 22
+		GTO 13
+	SF 01
+	STO 02		@ remember 1/cm in REG 02
+	100
+	*
+	299792458
+	*		@ Hz now in ST X
+	STO 01		@ store base value in REG 01
+	RCL 02		@ recall original 1/cm value
+	CLA
+	ARCL ST X
+	├" 1/cm"
+	AVIEW
+	RTN
+LBL 13		@ convert from Hz to 1/cm
+	RCL 01		@ recall base unit value from REG 01
+	299792458
+	÷
+	100
+	÷		@ 1/cm now in ST X
+	CLA
+	ARCL ST X
+	├" 1/cm"
+	AVIEW
+	RTN
+LBL 04		@ fs button pressed
+	FC? 22		@ has no number been inputted meanwhile?
+		GTO 14	@ no number was inputted -> convert to target unit (fs)
+	SF 01		@ mark that now a unit has been added
+	STO 02		@ remember fs in REG 02
+	1ᴇ-15
+	*
+	1/X		@ Hz now in REG 01
+	STO 01		@ store base value in REG 01
+	RCL 02		@ recall original fs value
+	CLA		@ clear ALPHA register
+	ARCL ST X	@ append target value to ALPHA register
+	├" fs"		@ append target unit
+	AVIEW		@ show ALPHA register
+	RTN
+LBL 14		@ convert from base unit (Hz) to target unit (fs)
+	RCL 01		@ recall base unit value from REG 01
+	1/X
+	1ᴇ-15
+	÷		@ fs now in ST X
+	CLA		@ clear ALPHA register
+	ARCL ST X	@ append target value to ALPHA register
+	├" fs"		@ append target unit
+	AVIEW		@ show ALPHA register
+	RTN
+LBL 05		@ eV button pressed
+	FC? 22		@ has no number been inputted meanwhile?
+		GTO 15	@ no number was inputted -> convert to target unit (eV)
+	SF 01		@ mark that now a unit has been added
+	STO 02		@ remember eV in REG 02
+	1602176634ᴇ-28
+	*
+	6626070150ᴇ-43
+	÷		@ Hz now in REG 01
+	STO 01		@ store base value in REG 01
+	RCL 02		@ recall original eV value
+	CLA		@ clear ALPHA register
+	ARCL ST X	@ append target value to ALPHA register
+	├" eV"		@ append target unit
+	AVIEW		@ show ALPHA register
+	RTN
+LBL 15		@ convert from base unit (Hz) to target unit (eV)
+	RCL 01		@ recall base unit value from REG 01
+	6626070150ᴇ-43
+	*
+	1602176634ᴇ-28
+	÷		@ eV now in ST X
+	CLA		@ clear ALPHA register
+	ARCL ST X	@ append target value to ALPHA register
+	├" eV"		@ append target unit
+	AVIEW		@ show ALPHA register
+	RTN
+LBL 06		@ J button pressed
+	FC? 22		@ has no number been inputted meanwhile?
+		GTO 16	@ no number was inputted -> convert to target unit (J)
+	SF 01		@ mark that now a unit has been added
+	STO 02		@ remember J in REG 02
+	6626070150ᴇ-43
+	÷		@ Hz now in REG 01
+	STO 01		@ store base value in REG 01
+	RCL 02		@ recall original J value
+	CLA		@ clear ALPHA register
+	ARCL ST X	@ append target value to ALPHA register
+	├" J"		@ append target unit
+	AVIEW		@ show ALPHA register
+	RTN
+LBL 16		@ convert from base unit (Hz) to target unit (J)
+	RCL 01		@ recall base unit value from REG 01
+	6626070150ᴇ-43
+	*		@ J now in ST X
+	CLA		@ clear ALPHA register
+	ARCL ST X	@ append target value to ALPHA register
+	├" J"		@ append target unit
+	AVIEW		@ show ALPHA register
+	RTN
+LBL 99		@ exit program
+	CLMENU
+	EXITALL

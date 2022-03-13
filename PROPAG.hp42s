@@ -1,0 +1,449 @@
+############################################################################
+#
+# BPROP   Propagate a beam through an optics system
+#         input: "WAIST", "Z0", "LAMBDA", "POS", "OSYS"
+#         output: "RF" (radius at POS), "QO" (final beam parameter)
+#         internally used: REG 01 (temporary storage for MAT creation)
+#                          REG 02 (remaining dist)
+#                          REG 03 (OSYS row pointer)
+#                          REG 04 (number of elements in OSYS)
+#                          "ZR"   (Rayleigh length)
+#                          "MAT"  (beam propagation matrix)
+#                          "QI"   (beam parameter before propagation)
+
+LBL "BPROP"	// Main program start
+	XEQ 04			// initialize variables
+	XEQ 05			// main loop
+	GTO 99			// finish program (should never come here)
+LBL 01		// Propagate QI through MAT matrix (result in ST X)
+	INDEX "MAT"
+	1
+	ENTER
+	STOIJ
+	RCLEL			// A
+	RCL× "QI"
+	J+
+	RCLEL			// B
+	+
+	J+
+	RCLEL			// C
+	RCL× "QI"
+	J+
+	RCLEL			// D
+	+
+	÷
+	RTN
+LBL 02		// Retrieve distance needed for an element in optics list
+	INDEX "OSYS"
+	1
+	STOIJ
+	RCLEL			// get element type
+	J+
+	"DIST"
+	ASTO ST Y
+	X=Y?			// type == "DIST"?
+		GTO 03
+	0
+	RTN
+LBL 03		// helper function for LBL 02 branching
+	RCLEL
+	RTN
+LBL 04		// Initialization
+	1
+	STO 03			// REG 03 is OSYS row pointer
+	RCL "POS"
+	STO 02			// REG 02 is remaining distance
+	RCL "OSYS"
+	DIM?
+	R↓
+	STO 04			// REG 04 is number of elements
+	-1
+	STO× "Z0"		// invert Z0 for calculation of Q
+	XEQ 61			// calculate initial Q
+	STO "QI"		// store result in QI
+	-1
+	STO× "Z0"		// undo inversion of Z0
+	RTN
+LBL 05		// Main loop through all elements within distance
+	RCL 03			// get OSYS row pointer
+	XEQ 02			// retrieve distance of current element
+	RCL 02			// get remaining distance
+	X<Y?			// remaining distance < current element distance?
+	GTO 10
+	X<>Y
+	STO- 02			// remaining distance -= current element distance
+	INDEX "OSYS"
+	RCL 03
+	1
+	STOIJ			// point to type of current element
+	XEQ 06			// identify element
+	J+
+	RCLEL			// get parameter of element
+	XEQ IND ST Y		// create MAT for either LENS or DIST element
+	XEQ 01			// propagate beam through element
+	STO "QI"
+	1
+	STO+ 03
+	RCL 04
+	RCL 03
+	X>Y?
+		GTO 10		// exit from loop and process remaining distance
+	GTO 05
+LBL 06		// Identify element type and return proper jump LBL
+	RCLEL			// get element type
+	"DIST"
+	ASTO ST Y
+	X=Y?			// type == "DIST"?
+		51
+	"LENS"
+	ASTO ST Y
+	X=Y?			// type == "LENS"?
+		52
+	"MIRROR"
+	ASTO ST Y
+	X=Y?			// type == "MIRROR"?
+		53
+	STR?			// no number in ST X -> did not identify element
+		98
+	RTN
+LBL 10		// Process remaining distance
+	RCL 02			// REG 02 holds remaining distance
+	XEQ 51			// create MAT for DIST
+	XEQ 01			// propagate QI through MAT
+	STO "QO"
+	1/X
+	COMPLEX
+	+/-
+	1/X
+	RCL "LAMBDA"
+	×
+	PI
+	÷
+	SQRT
+	STO "RF"		// store final radius in "RF"
+	RCL "POS"
+	X<>Y			// --> ST Y: position, ST X: final radius
+	GTO 99
+LBL 51		// Create matrix MAT for DIST element (length in X)
+	STO 01			// remember X in REG 01
+	2
+	ENTER
+	DIM "MAT"
+	INDEX "MAT"
+	1
+	ENTER
+	STOIJ			// go to element 1,1
+	1
+	STOEL
+	J+			// go to element 1,2
+	RCL 01
+	STOEL
+	J+			// go to element 2,1
+	0
+	STOEL
+	J+			// go to element 1,1
+	1
+	STOEL
+	RTN
+LBL 52		// Create matrix MAT for LENS element (focal length in X)
+	STO 01			// remember X in REG 01
+	2
+	ENTER
+	DIM "MAT"		// create 2x2 matrix
+	INDEX "MAT"		// select matrix
+	1
+	ENTER
+	STOIJ			// go to element 1,1
+	1
+	STOEL
+	J+			// go to element 1,2
+	0
+	STOEL
+	J+			// go to element 2,1
+	RCL 01
+	+/-
+	1/X
+	STOEL
+	J+			// go to element 2,2
+	1
+	STOEL
+	RTN
+LBL 53		// Create matrix MAT for MIRROR element (radius of curvature in X)
+	2
+	÷		// focal length is radius/2
+	XEQ 52		// rest is like a normal lens
+	RTN
+LBL 61		// Convert WAIST & position Z0 to beam parameter Q
+	XEQ 62		// calculate Rayleigh length ZR
+	RCL "Z0"
+	RCL "ZR"
+	COMPLEX
+	RTN
+LBL 62		// Calculate Rayleigh length from WAIST and LAMBDA
+	RCL "WAIST"
+	X↑2
+	PI
+	×
+	RCL÷ "LAMBDA"
+	STO "ZR"
+	RTN
+LBL 98		// Stop with error
+	"ERROR"
+	AVIEW
+	STOP
+LBL 99		// Exit program normally and remove unused variables
+	CLV "MAT"
+	CLV "QI"
+END
+
+############################################################################
+#
+# CAVITY  Function for SOLVER application to find eigenmode waist of
+#         a cyclic cavity arrangement. The waist positions must coincide
+#         with the input and output of the system.
+
+LBL "CAVITY"
+	MVAR "WAIST"	// input waist, the parameter we want to calculate
+	MVAR "Z0"	// position of input waist, should normally be zero
+	MVAR "LAMBDA"	// wavelength
+	MVAR "POS"	// total length of optical system and position of output waist
+	XEQ "BPROP"	// execute beam propagation
+	RCL- "WAIST"	// subtract from ST X (output radius) the input WAIST
+END
+
+############################################################################
+#
+# BPLOT  Beam plotter based on the original DPLOT program. Uses callbacks to
+#        PROPAG to calculate the radius of the beam along the OSYS beam path.
+#        internally used: REG 10 (YMAX-YMIN)
+#                         REG 11 (current X position)
+#                         REG 12 (main loop counter)
+#                         REG 14 (loop counter at various places)
+#                         REG 15 (current X position for lens elements)
+
+LBL "BPLOT"
+	MVAR "YMIN"
+	MVAR "YMAX"
+	MVAR "AXIS"
+	MVAR "XMIN"
+	MVAR "XMAX"
+	MVAR "AUTO"
+	MVAR "Z0"
+	MVAR "WAIST"
+	MVAR "LAMBDA"
+LBL A
+	VARMENU "BPLOT"
+	"Ready"
+	"  Beam mode "
+	├"plotter"
+	PROMPT
+	ASTO ST X	// ALPHA register contains name of pressed button
+	"AUTO"
+	ASTO ST Y
+	X=Y?		// "AUTO" button pressed?
+		GTO 06		// automatic parameter determination
+	CLA
+	15		// for DM42 use: RCL "ResY"\n 1\n -
+	RCL "YMAX"
+	RCL- "YMIN"
+	÷
+	STO 10
+	RCL "XMIN"
+	STO 11
+	1.131		// for DM42 use: 1\n RCL "ResX"\n 1000\n ÷\n +\n
+	STO 12
+	CLLCD
+	XEQ a
+	XEQ b
+	LBL 01		// start of main plotting loop
+		RCL 11
+		XEQ c
+		XEQ 02
+		RCL 12
+		PIXEL		// draw a pixel
+		RCL "XMAX"
+		RCL- "XMIN"
+		131		// for DM42 use: RCL "ResX"
+		÷
+		STO+ 11
+		ISG 12		// proceed to next position if possible
+			GTO 01
+	XEQ d		// write summary on final waist and position
+	STOP		// wait for R/S key to restart
+	GTO A		// go to start
+LBL 02		// Determine vertical position of pixel from ST X function value
+	RCL- "YMIN"
+	RCL× 10
+	16	// for DM42 use: RCL "ResY"
+	-
+	X>0?
+		CLX
+	ABS
+	RTN
+LBL a		// Draw horizontal axis
+	RCL "AXIS"
+	XEQ 02
+	+/-
+	1
+	PIXEL
+	RTN
+LBL b		// Represent LENS and MIRROR positions by vertical lines
+	INDEX "OSYS"
+	RCL "OSYS"
+	DIM?
+	X<>Y
+	1ᴇ3
+	÷
+	1
+	+
+	STO 14		// initialize REG 14 as loop counter over OSYS rows
+	1
+	ENTER
+	STOIJ
+	0
+	STO 15		// current x position initialized to 0
+	LBL 03		// loop over OSYS rows
+		RCLEL
+		"DIST"
+		ASTO ST Y
+		X≠Y?
+			GTO 04		// not a DIST element
+		J+
+		RCLEL
+		STO+ 15	// add length to position in REG 15
+		J-
+		LBL 04		// process non-DIST elements
+		RCLEL
+		"LENS"
+		ASTO ST Y
+		X=Y?		// LENS element?
+			XEQ 05		// draw vertical line
+		RCLEL
+		"MIRROR"
+		ASTO ST Y
+		X=Y?		// MIRROR element?
+			XEQ 05		// draw vertical line
+		I+		// advance to next element
+		ISG 14		// more elements available?
+			GTO 03		// run loop with next element
+	RTN
+LBL 05		// Draw a vertical line at REG 15 (not yet in display units)
+	RCL 15		// start to prepare values for line
+	RCL- "XMIN"
+	RCL "XMAX"
+	RCL- "XMIN"
+	÷
+	131		// for DM42 use: RCL "ResX"
+	×
+	+/-
+	1
+	X<>Y
+	PIXEL		// draw the vertical line
+	RTN
+LBL c		// Execute beam propagation program
+	STO "POS"
+	XEQ "BPROP"
+	RTN
+LBL 06 		// Automatic parameter determination
+	-1
+	STO "AXIS"	// AXIS = -1 -> not visible
+	0
+	STO "XMAX"	// XMAX = 0
+	STO "XMIN"	// XMIN = 0
+	STO "YMAX"	// YMAX = 0
+	STO "YMIN"	// YMIN = 0
+	RCL "OSYS"
+	DIM?
+	R↓
+	STO 04		// REG 04 is number of elements
+	INDEX "OSYS"
+	1
+	ENTER
+	STOIJ
+	LBL 07		// loop start point
+		RCLEL
+		"DIST"
+		ASTO ST Y
+		X≠Y?		// not a "DIST" element?
+			GTO 08		// skip to next element
+		J+
+		RCLEL
+		STO+ "XMAX"	// add distance to "XMAX"
+		J-
+		LBL 08		// advance to next element
+		RCLIJ
+		X<>Y
+		RCL 04
+		X=Y?		// at last element?
+			GTO 09
+		I+			// go to next element
+		GTO 07
+	LBL 09		// continue ("XMAX" now contains total distance)
+	RCL "XMIN"
+	STO 11
+	1.131		// prepare loop counter, DM42: RCL "ResX"\n 1000\n ÷\n +
+	STO 12
+	LBL 10		// start of "plotting" loop
+		RCL 11
+		XEQ c		// call beam propagate function
+		RCL "YMAX"
+		X<>Y
+		X>Y?		// new value > "YMAX"?
+			STO "YMAX"
+		RCL "XMAX"
+		RCL- "XMIN"
+		131		// for DM42 use: RCL "ResX"
+		÷
+		STO+ 11
+		ISG 12
+			GTO 10		// process next element in loop
+	GTO A		// return to main menu
+LBL d		// write summary on final waist and position
+	RCL "XMAX"
+	RCLFLAG
+	LSTO "_FLAG"
+	DROP
+	RCL "XMAX"
+	XEQ c		// make sure to calculate the beam at the final position
+	FIX 01		// reduce number of digits shown
+	CLA
+	├"output waist: "
+	RCL "QO"	// get complex beam parameter
+	COMPLEX
+	RCL× "LAMBDA"
+	PI
+	÷
+	SQRT		// ST X now contains waist, ST Y still has position
+	XEQ "PREFIX"	// nicely add to ALPHA
+	├"m @ "
+	DROP
+	XEQ "PREFIX"	// nicely add position to ALPHA
+	├"m"
+	5
+	5
+	XEQ "DISPLAY"	// add information to plot
+	RCL "_FLAG"
+	STOFLAG
+	DROP
+	RTN
+END
+
+############################################################################
+#
+# Example OSYS matrices
+
+# Example of normal optical system
+DIST	0.1
+LENS	0.1
+DIST	0.15
+LENS	0.05
+DIST	0.05
+LENS	0.05
+DIST	0.05
+
+# Example of convocal cavity system
+DIST	0.05
+MIRROR	0.2
+DIST	0.1
+MIRROR	0.2
+DIST	0.05

@@ -1,0 +1,237 @@
+LBL "FORT"
+@ Finds the minimum of the FORT potential and optionally calculates the
+@ trap frequencies.
+@
+@
+@ input:
+@  MEH: Matrix of H-FORT unit column vectors 
+@       (waist 1 direction, waist 2 direction, propagation direction)
+@  MEV: Matrix of V-FORT unit colums vectors 
+@       (waist 1 direction, waist 2 direction, propagation direction)
+@
+@ output:
+@  TRAPF: 3x1 column vector with trap frequencies (Hz)
+@  UMIN: Potential at trap minimum (in µK)
+@
+@ internally used (global storage):
+@  PWRH: Power of horizontal FORT (used by IFORT)
+@  PWRV: Power of vertical FORT (used by IFORT)
+@  MASS: atomic mass in amu
+@  VR: 3x1 column vector of position
+@  VRMIN: 3x1 column vector of trap minimum position
+@  VRMAX: 3x1 column vector of trap minimum position
+@  H: 3x3 Hessian matrix at trap minimum
+@  ATOM: name of species (e.g. 168Er)
+@  FLAG 01: Calculate Jacobian or Hessian
+@  FLAG 02: Search for maximum instead of minimum
+@  FLAG 03: Error in searching extremum (no trap?)
+@  FLAG 04: Recalculation of trap geometry needed if set
+@  FLAG 05: Minimum of trap potential not known if set
+@  FLAG 06: Plot to printer instead of to LCD if set
+
+	LBL A
+	LBL a
+	@ Program menus
+	@
+	LBL 20
+	@ Dummy loop for program menu
+	LBL 11
+	@ H-FORT power setting
+	LBL 12
+	@ V-FORT power setting
+	
+	LBL B
+	@ Search for trap minimum and trap maximum.
+	@ Calls LBL C two times, without and with FLAG 02 set.
+	@ Also calculates final Hessian and potentials,
+	@ and save all calculation results
+	@
+	@ output:
+	@  H: 3x3 Hessian matrix at trap minimum
+	@  UMIN: Potential at trap minimum (in µK)
+	@  UMAX: Potential at trap maximum (in µK)
+	@  VRMIN: 3x1 column vector of trap minimum position
+	@  VRMAX: 3x1 column vector of trap maximum position
+	LBL 21
+	@ Finish trap calculation by calling function to calculate
+	@ trap frequencies and print out result.
+
+	LBL C
+	@ Newton Algorithm.
+	@ Determines either minimum (FLAG 02 false) or maximum (FLAG 02 true).
+	@ Before returning, FLAG 03 will be set if extremum was not found.
+	@
+	@  N: counter for number of Newton iterations
+	LBL 02
+	@ Loop for initial minimum/maximum search.
+	@ If FLAG 02 is false, searches for minimum.
+	@ If FLAG 02 is true, searches for maximum.
+	@ Starts at current position VR and goes down in steps of 2 µm
+	@ until beyond minimum or maximum.
+	@
+	@ internally used (local storage):
+	@  VAL: current potential value
+	@  M: counter of search interations (30 iterations max)
+	LBL 01
+	@ Newton Algorithm main loop
+	@
+	@ internally used (local storage):
+	@  J: Jacobian 3x1 column vector
+	@  DELTA: 3x1 column vector, current Newton step size
+	LBL 03
+	@ Could not find trap extremum. Cancel Newton.
+	@
+	@ output:
+	@  FLAG 03: set to true
+	LBL 07
+	@ Newton algorithm converged
+	LBL 08
+	@ Newton algorithm did not converge within N steps
+	LBL 06
+	@ Display trap depth and gravitational sag
+	@
+	@ input:
+	@  UMIN: Potential at trap minimum (in µK)
+	@  UMAX: Potential at trap maximum (in µK)
+	@  VRMIN: 3x1 column vector of trap minimum position
+	@
+	@ output:
+	@  ALPHA: informational message
+	LBL 22
+	@ helper label to jump directly to grav. sag printing in
+	@ case the trap depth is unknown
+
+	LBL D
+	@ Calculates the eigenvectors of a 3x3 matrix.
+	@ Follows the implementation of 
+	@ https://en.wikipedia.org/wiki/Eigenvalue_algorithm
+	@
+	@ input:
+	@  ST X: 3x3 matrix (in this case the Hessian matrix)
+	@  MASS: atomic mass in amu
+	@
+	@ output:
+	@  TRAPF: 3x1 column vector with trap frequencies (Hz)
+	@
+	@ internally used (local storage):
+	@  A: copy of 3x3 matrix for which eigenvalues are computed
+	@  Q: trace(H)/3
+	@  P1, P2, P, PHI: intermediate values
+	@  B: 3x3 intermediate matrix
+	@  EIG1, EIG2, EIG3: eigenvalues
+	
+	LBL E
+	@ Plot trap potential in vertical direction.
+	@ If FLAG 04 is clear plots along the line connecting trap
+	@ minimum and maximum, otherwise through zero along Z.
+	@ If FLAG 06 is set plots to printer instead of to LCD.
+	@
+	@ internally used (local storage):
+	@  VDIR: 3x1 unit column vector of plot direction
+	LBL 30
+	@ Plot direction is determined, start plot
+	@ If FLAG 06 is set jump to LBL d to plot to printer instead.
+	@
+	@ input:
+	@  VDIR: 3x1 unit column vector of plot direction
+	@
+	@ internally used:
+	@  VR: 3x1 vector of current plot position
+	LBL 31
+	@ main plotting loop
+	LBL 32
+	@ Determine vertical position of pixel from ST X function value
+	LBL 33
+	@ Draw a vertical line
+	@
+	@ input:
+	@  ST X: position (in spatial units)
+	LBL 34
+	@ Draw a horizontal line
+	@
+	@ input:
+	@  ST X: position (in µK units)
+	LBL c
+	@ Calculate potential at given position
+	@ The position will be translated into a 3D point along
+	@ the plot axis.
+	@
+	@ input:
+	@  ST X: position (in m)
+	@
+	@ output:
+	@  ST X: potential in µK
+	@
+	@ internally used (global storage):
+	@  XMIN, XMAX: minimal and maximal vertical value
+	@  YMIN, YMAX: minimal and maximal vertical value
+	
+	LBL 41/42/43
+	@ Species selection for Er/Yb/Li
+	@
+	@ output:
+	@  POLARI: polarizability in atomic units (positive for attractive pot.)
+	@  MASS: atomic mass in amu
+	
+	LBL 51
+	@ Entry point for summary printout to HP82240A printer
+	@ Starts by executing PRON and printing 
+	LBL 52
+	@ Loop to print out all three trap frequencies
+
+	LBL d
+	@ Start of actual function plotting to printer.
+	@ This is called from LBL E (our standard plotting function)
+	@ when FLAG 06 is set)
+	@
+	@ internally used (local storage):
+	@  _GrMod: graphics mode before chaning to low-res for printing
+	@  _DX: x-axis resolution in m/pixel
+	@  _XPOS: current position of plot in m
+	LBL 53
+	@ Outer loop over the single screens, built and printed one-by-one
+	@
+	@ internally used (local storage):
+	@  _YSCR: current vetical position on screen in pixel (loop variable)
+	LBL 54
+	@ Inner loop over vertical positions (_YSCR) on current screen
+	LBL 55
+	@ Print final y-axis (via XEQ 57 and XEQ 60 with FLAG 01 set)
+	LBL 56
+	@ Function drawing callback.
+	@ Takes position _XPOS, evaluates the potential (via XEQ c), converts
+	@ into screen coordinates and draws a PIXEL at that position
+	LBL 57
+	@ Draws a horizontal line on the LCD at position ST X.
+	@ After the routine the value of ST X is unchanged.
+	LBL 58
+	@ Draws one pixel at the left and one pixel at the right LCD boundary.
+	@ After the routine the value of ST X is unchanged.
+	LBL 59
+	@ Draws x-axis tic marks and tic labels.
+	@ Does not try to restore the stack before returning
+	LBL 60
+	@ Draws y-axis tic marks at vertical position ST X. 
+	@ With FLAG 01 cleared initial marks are drawn below ST X.
+	@ With FLAG 01 set final marks are drawn above ST X.
+	@ FLAG 01 is cleared before returning.
+	@ Implemented with FUNC 00 so the stack is unchanged.
+	LBL 61
+	@ Prints lower, upper and central y-axis value labels.
+	@ The labels are positioned at the bottom of the screen so that the
+	@ actual plot with box and tics start at the top of the next screen.
+	LBL 62
+	@ Calculates estimated width of current ALPHA string in pixel.
+	@ For now every character is assumed to take 4 pixels.
+	@
+	@ input:
+	@  ALPHA: input string
+	@
+	@ output:
+	@  ST X: width in pixel
+	LBL 63
+	@ Finishes plotting to printer by restoring initical graphics mode
+	
+	LBL 99
+	@ Exits the program cleanly.
+	@ Clears FLAG 04. FLAG 05 and the programmable menu.

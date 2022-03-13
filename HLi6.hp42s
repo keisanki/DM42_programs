@@ -1,0 +1,71 @@
+@ Calculate energy difference (in MHz) between the two 6Li(F=1/2) ground states.
+@
+@ flags:
+@  FLAG 09: if SET suppress displaying result via ALPHA register
+@
+@ input:
+@  ST X: magnetic field in Gauss
+@
+@ output:
+@  ST X: energy difference in MHz
+@
+LBL "HLi6"
+LSTO "_B"
+FS? 09          @ skip ALPHA entries if FLAG 09 set
+	GTO 01
+CLA             @ add magnetic field information to ALPHA
+"f("
+AIP
+├" G) = "
+LBL 01          @ set up Hamiltonian and calculate energy difference
+	XEQ A
+	XEQ B
+FS? 09          @ skip ALPHA entries if FLAG 09 set
+	GTO 02
+ARCL ST X       @ add frequency difference to ALPHA
+├" MHz"
+AVIEW
+LBL 02
+GTO 99          @ jump to end of program
+LBL A           @ create Li6 ground state Hamiltonian
+	1399624.5042    @ mu_B (Hz/G)
+	RCL× "_B"
+	2.002301        @ g_J
+	RCL× "MJz"      @ J_z
+	-0.000447654    @ g_I
+	RCL× "MIz"      @ I_z
+	+
+	×
+	152136840.7     @ a (Hz)
+	RCL× "MJI"      @ J_I
+	+
+	STO "MZ"        @ H = a*J_I + B*mu_B*(g_J*J_z+g_I*I_z)
+	RTN
+LBL B           @ calculate energy difference between 1st and 2nd state in MHz
+	RCL "REGS"
+	LSTO "VREGS"    @ save current register values
+	RCL "MZ"
+	SF 01
+	XEQ "TRED2"     @ transform H into tridiagonal shape
+	SF 02
+	XEQ "TQLI"      @ calculate eigenvalues from tridiagonal shape
+	CF 02
+	CF 01
+	RCL "VREGS"
+	STO "REGS"      @ restore register values
+	RCL "VD"
+	INDEX "VD"
+	1
+	2
+	STOIJ
+	R↓
+	R↓
+	RCLEL           @ energy of m_F = -1/2 state
+	J-
+	RCLEL           @ energy of m_F = +1/2 state
+	-
+	1ᴇ6
+	÷               @ energy difference in MHz
+	RTN
+LBL 99          @ exit program
+END

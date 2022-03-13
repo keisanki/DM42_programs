@@ -1,0 +1,115 @@
+LBL "CPCTR"
+CLMENU
+"→VAL"
+KEY 1 XEQ 01
+"→CODE"
+KEY 2 XEQ 02
+KEY 9 GTO 99
+MENU
+LBL 20		// menu loop
+	STOP
+	GTO 20
+LBL 01		// convert from capacitor code to its value
+	10
+	÷
+	ENTER		// duplicate value for later use
+	IP
+	10
+	÷
+	STO 01		// store fraction part in REG 01
+	R↓		// retrieve copy of original value
+	FP
+	10
+	×		// ST X now contains exponent part
+	10↑X
+	10ᴇ-12		// base value is 10 pF
+	×
+	RCL× 01	// ST X now contain capacitor value
+	CLA
+	XEQ 03
+	├"F"
+	AVIEW
+	R↓
+	R↓
+	R↓		// recover full capacitor value
+	GTO "CPCTR"
+LBL 02		// convert from capacitor value to its code
+	10ᴇ-12		// base value is 10 pF
+	÷
+	ENTER		// duplicate value for later use
+	LOG
+	IP
+	STO 01		// store exponent part in REG 01
+	10↑X
+	÷		// ST X now contains fraction part
+	10
+	×
+	IP
+	10
+	×
+	RCL+ 01
+	CLA
+	"Code: "
+	ARCL ST X
+	AVIEW
+	GTO "CPCTR"
+LBL 03		// Pretty print number with unit prefix
+	ENTER
+	LOG
+	3
+	÷
+	0.5
+	-
+	IP
+	STO 01		// store prefix number in REG 01
+	-4
+	X>Y?		// prefix < -4?
+		STO 01		// limit prefix to -4
+	R↓
+	3
+	X<Y?		// prefix > 9?
+		STO 01		// limit prefix to 3
+	R↓
+	R↓		// recover original number
+	RCL 01
+	3
+	*
+	10↑X
+	÷		// have now fractional part
+	ARCL ST X	// append fractional part to ALPHA register
+	RCL 01
+	-4
+	X=Y?
+		├" p"
+	R↓
+	-3
+	X=Y?
+		├" n"
+	R↓
+	-2
+	X=Y?
+		├" µ"
+	R↓
+	-1
+	X=Y?
+		├" m"
+	R↓
+	0
+	X=Y?
+		├" "
+	R↓
+	1
+	X=Y?
+		├" k"
+	R↓
+	2
+	X=Y?
+		├" M"
+	R↓
+	3
+	X=Y?
+		├" G"
+	RTN
+LBL 99		// exit program
+	CLMENU
+	EXITALL

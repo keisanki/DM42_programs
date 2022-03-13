@@ -1,0 +1,199 @@
+@ For a list of all CODATA constants see
+@ https://physics.nist.gov/cuu/Constants/Table/allascii.txt
+LBL "CONST"
+FUNC 01
+CF 01
+FS?C 21
+	SF 01
+PROFF
+"CODATA 2018 "
+├"based"
+AVIEW
+LBL A			@ first menu page
+	CLMENU
+	"c0"
+	KEY 1 GTO 01
+	"a0"
+	KEY 2 GTO 02
+	"kB"
+	KEY 3 GTO 03
+	"h"
+	KEY 4 GTO 04
+	"hbar"
+	KEY 5 GTO 05
+	"kB"
+	KEY 6 GTO 06
+	"amu"
+	KEY 6 GTO 06
+	KEY 7 GTO C	@ up key
+	KEY 8 GTO B	@ down key
+	KEY 9 GTO 99	@ exit key
+	MENU
+LBL a			@ keep the menu even if R/S is pressed
+	STOP
+	GTO a
+LBL B			@ second menu page
+	CLMENU
+	"μB•J"
+	KEY 1 GTO 07
+	"μB•H"
+	KEY 2 GTO 08
+	"μ0"
+	KEY 3 GTO 09
+	"eps0"
+	KEY 4 GTO 10
+	"e"
+	KEY 5 GTO 11
+	"NA"
+	KEY 6 GTO 12
+	KEY 7 GTO A	@ up key
+	KEY 8 GTO C	@ down key
+	KEY 9 GTO 99	@ exit key
+	MENU
+LBL b			@ keep the menu even if R/S is pressed
+	STOP
+	GTO b
+LBL C			@ third menu page
+	CLMENU
+	"Eh"
+	KEY 1 GTO 13
+	"me"
+	KEY 2 GTO 14
+	"→a.u."
+	KEY 3 GTO 30
+	KEY 7 GTO B	@ up key
+	KEY 8 GTO A	@ down key
+	KEY 9 GTO 99	@ exit key
+	MENU
+LBL c			@ keep the menu even if R/S is pressed
+	STOP
+	GTO c
+LBL 01
+	"Speed of light"
+	├" (m/s)"
+	299792458	@ exact by definition
+	GTO 98
+LBL 02
+	"Bohr radius"
+	├" (m)"
+	5.29177210903ᴇ-11
+	GTO 98
+LBL 03
+	"Boltzmann"
+	├" const (J/K)"
+	1.380649ᴇ-23	@ exact by definition
+	GTO 98
+LBL 04
+	"Planck const"
+	├" (J×s)"
+	6.626070150ᴇ-34	@ exact by definition
+	GTO 98
+LBL 05
+	"Red Planck"
+	├" const (J×s)"
+	1.054571817ᴇ-34
+	GTO 98
+LBL 06 
+	"Atomic mass"
+	├" unit (kg)"
+	1.6605390666ᴇ-27
+	GTO 98
+LBL 07 
+	"Bohr magneton"
+	├" (J/T)"
+	9.2740100783ᴇ-24
+	GTO 98
+LBL 08 
+	"Bohr magneton"
+	├" (Hz/G)"
+	AVIEW
+	9.2740100783ᴇ-24
+	6.62607015ᴇ-34
+	÷
+	10000
+	÷
+	GTO 98
+LBL 09 
+	"Vacuum permea."
+	├" (N/A↑2)"
+	1.25663706212ᴇ-6
+	GTO 98
+LBL 10
+	"Vacuum permit."
+	├" (AS/Vm)"
+	8.8541878128ᴇ-12
+	GTO 98
+LBL 11 
+	"Electron charge"
+	├" (A×s)"
+	1.602176634ᴇ-19	@ exact by definition
+	GTO 98
+LBL 12
+	"Avogadro"
+	├" constant"
+	6.02214076ᴇ23	@ exact by definition
+	GTO 98
+LBL 13
+	"Hartree energy"
+	├" (J)"
+	4.3597447222071ᴇ-18
+	GTO 98
+LBL 14
+	"Electron mass"
+	├" (kg)"
+	9.1093837015ᴇ-31
+	GTO 98
+LBL 30			@ atomic units menu page.
+	CLMENU		@ see https://arxiv.org/pdf/1108.3866.pdf (Appendix A)
+	"mass"		@ for some of the definitions
+	KEY 1 GTO 32
+	"dipol"
+	KEY 2 GTO 33
+	"C6"
+	KEY 3 GTO 34
+	"polar"
+	KEY 4 GTO 35
+	KEY 9 GTO C	@ exit key
+	MENU
+LBL 31			@ keep the menu even if R/S is pressed
+	STOP
+	GTO 31
+LBL 32
+	"A.u. mass"
+	├" (kg)"
+	1.6605390666ᴇ-27
+	91093837015ᴇ-41
+	÷
+	1.6605390666ᴇ-27
+	×			@ ~1822.89 amu
+	GTO 98
+LBL 33
+	"A.u. dipole "
+	├"mom."
+	├" (Cm)"
+	8.4783536255ᴇ-30	@ ~2.5417 D
+	GTO 98
+LBL 34
+	"A.u. C6"
+	├" (Jm↑6)"
+	5.29177210903ᴇ-11
+	6
+	Y^X
+	4.3597447222071ᴇ-18
+	×			@ a0^6 * Eh
+	GTO 98
+LBL 35
+	"A.u. polar."
+	├" (C↑2m↑2/J)"
+	1.64877727436ᴇ-41
+	GTO 98
+LBL 98			@ show and print values
+	FS? 01
+		PRON
+	AVIEW
+	FS? 01
+		PRX
+LBL 99			@ clean exit
+	CF 01
+	CLMENU
+	EXITALL

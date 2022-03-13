@@ -1,0 +1,148 @@
+############################################################################
+#
+# V60  V60 drip coffee timer
+#      internally used: REG 01 (start time as reference in HR format)
+#                       REG 02 (total number of steps)
+#                       REG 03 (absolue time of next step in HR format)
+#                       FLAG 01 (indicate end of recipe)
+
+LBL "V60"
+CF 21		// disable printing
+"  V60 coffee"
+├" timer[LF]"
+├" press R/S"
+├" to start"
+AVIEW		// display startup message
+STOP
+INDEX "V60R"	// choose V60R matrix
+RCL "V60R"
+DIM?
+R↓
+STO 02		// remember number of rows (= number of steps) in REG 02
+
+TIME
+→HR
+J+
+RCLEL		// time of first (preparation) step
+J-
+→HR
+-		// start time will be after the preparation step
+STO 01		// store start time in HR format in REG 01
+
+XEQ 01		// retrieve information on next step
+CF 01		// clear FLAG 01 that will indicate end of recipe
+
+LBL 00		// main loop start
+	RCL 03		// absolute time of next step
+	XEQ A		// calculate time to next step (HR format)
+	+/-		// have time to next as positive number
+	XEQ B		// show messages
+	PSE		// wait for approx. 1 s
+	
+	RCL 03		// absolute time of next step
+	XEQ A		// calculate time to next step (HR format)
+	X<0?		// still time remaining in current step?
+		GTO 00		// yes, continue loop as-is
+	RCLIJ
+	R↓		// current position in matrix
+	RCL 02		// number of rows in matrix
+	X>Y?		// new positions in recipe available?
+		XEQ 01		// yes, retrieve information on next step
+	X<=Y?		// "else"
+		SF 01		// indicate that we actually are beyond the last step
+	X>Y?
+		BEEP		// also BEEP when changing to the next position
+	FC? 01		// not yet at end of sequence?
+		GTO 00		// continue loop
+
+	RCL 03		// recall once again absolute time of last step...
+	XEQ A		// ...and calculate time difference
+	0.0010		// 10 seconds...
+	→HR		// ...converted to HR format
+	X<Y?		// is time beyond last step > 10 s?
+		GTO 99		// in that case exit program
+	GTO 00
+
+LBL 01		// Advance to next recipe step
+	I+
+	J+
+	RCLEL		// relative time of next step
+	J-
+	→HR
+	RCL+ 01	// make it absolute by adding reference time
+	STO 03
+	RTN
+
+LBL A		// Calculate time difference between ST X and now time
+	TIME
+	→HR
+	X<>Y
+	-
+	RTN		// return time difference in HR format via ST X
+
+LBL B		// Write messages on screen
+	CLA
+	"next: "
+	FC? 01
+		XEQ C		// pretty print time to next step
+	FS? 01
+		├"-:--"	// no next step
+	├" |"
+	├" Σ: "
+	RCL 01		// reference time in HR format
+	XEQ A		// difference time
+	XEQ C		// pretty print and append to ALPHA
+	├"[LF]"
+	FC? 01		
+		I-		// only go to next element if not at end
+	RCLEL		// get description of current step
+	ARCL ST X	// append to ALPHA
+	FS? 01
+		GTO 02		// skip displaying next step if no next step
+	I+
+	├" (→ "
+	RCLEL		// get description of next step
+	ARCL ST X	// append to ALPHA
+	├")"
+	LBL 02
+	AVIEW
+	RTN
+	
+LBL C		// Format ST X (HR format) in mm:ss and add to ALPHA
+	→HMS
+	100
+	*		// now in mm.ss
+	X<0?
+		├"-"		// prepend "-" for negative times
+	ABS		// work with positive times from now on
+	AIP		// append integer part (that is mm) to ALPHA
+	├":"
+	FP		// have .ss (fractional part of mm.ss)
+	100
+	*		// bring seconds to the integer part
+	10
+	X<>Y
+	X<Y?
+		├"0"		// append additional "0" for seconds < 10
+	AIP		// append integer part (that is ss) to ALPHA
+	RTN
+
+LBL 99		// Cleanly exit program
+	TONE 9		// final signal
+	SF 21		// enable printing
+	CLST		// clean up stack
+	EXITALL
+
+############################################################################
+#
+# V60R  recipe matrix
+#       column 1: label of brewing step
+#       column 2: starting time of action in HMS format
+
+wait	-0.0005
+40 ml	0.0000
+120 ml	0.0045
+180 ml	0.0130
+240 ml	0.0215
+300 ml	0.0300
+done	0.0330

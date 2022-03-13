@@ -1,0 +1,259 @@
+LBL "FPLOT"
+
+LBL F
+@ start of main plotting function
+
+LBL 11
+@ outer plotting loop
+
+LBL 12
+@ inner plotting loop
+
+LBL 19
+@ draw final line and print final screen
+
+LBL 51
+@ print horizontal line at ST X
+@ before return ST X is restored
+
+LBL 52
+@ print left and right border pixel at ST X
+
+LBL 53
+@ print x-axis tic marks and label for current screen
+
+LBL 54
+@ print y-axis tic marks (FLAG 1 clear -> start tics, set -> end tics)
+@ assumes border line is at ST X
+@ implemented as function, so stack is restored upon return
+@ FLAG 1 will be cleared by the function
+
+LBL 55
+@ print y-axis tic marks at bottom of current screen
+
+LBL 56
+@ calculate width of ALPHA printout (assuming 4 px/char)
+@ on return stack is shifted up by one and result is in ST X
+
+LBL 99
+@ prepare for exit and exit
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@
+@ Complete FPLOT source code (listing generated on 2021/12/12)
+@
+
+00 { 662-Byte Prgm }
+01▸LBL "FPLOT"
+02 RCL "GrMod"
+03 LSTO "_GrMod"
+04 0
+05 STO "GrMod"
+06 0
+07 LSTO "_XMIN"
+08 7
+09 LSTO "_XMAX"
+10 1
+11 LSTO "_XSTEP"
+12 -1
+13 LSTO "_YMIN"
+14 1
+15 LSTO "_YMAX"
+16 RCL "_XSTEP"
+17 RCL÷ "ResY"
+18 LSTO "_DX"
+19 RCL "_YMAX"
+20 RCL- "_YMIN"
+21 RCL÷ "ResX"
+22 LSTO "_DY"
+23▸LBL F
+24 RCL "_XMIN"
+25 LSTO "_XPOS"
+26 CLLCD
+27 "←Depth (μK) "
+28 XEQ 55
+29 PRLCD
+30 CLLCD
+31 1
+32 XEQ 51
+33 XEQ 53
+34 XEQ 54
+35▸LBL 11
+36 RCL "ResY"
+37 1000
+38 ÷
+39 1
+40 +
+41 LSTO "_YSCR"
+42▸LBL 12
+43 RCL "_DX"
+44 STO+ "_XPOS"
+45 XEQ 50
+46 RCL "_XPOS"
+47 X≥? "_XMAX"
+48 GTO 19
+49 RCL "_YSCR"
+50 XEQ 52
+51 ISG "_YSCR"
+52 GTO 12
+53 PRLCD
+54 CLLCD
+55 XEQ 53
+56 GTO 11
+57 GTO 99
+58▸LBL 19
+59 RCL "_YSCR"
+60 XEQ 51
+61 SF 01
+62 XEQ 54
+63 PRLCD
+64 ADV
+65 GTO 99
+66▸LBL 50
+67 RCL "_XPOS"
+68 SIN
+69 RCL- "_YMIN"
+70 X<0?
+71 0
+72 RCL "ResX"
+73 RCL "_YMAX"
+74 RCL- "_YMIN"
+75 ÷
+76 ×
+77 RCL "_YSCR"
+78 X<>Y
+79 PIXEL
+80 RTN
+81▸LBL 51
+82 +/-
+83 0
+84 PIXEL
+85 R↓
+86 +/-
+87 RTN
+88▸LBL 52
+89 1
+90 PIXEL
+91 R↓
+92 RCL "ResX"
+93 PIXEL
+94 R↓
+95 RTN
+96▸LBL 53
+97 "××××"
+98 1
+99 2
+100 AGRAPH
+101 1
+102 RCL "ResX"
+103 4
+104 -
+105 AGRAPH
+106 4
+107 +
+108 2
+109 ÷
+110 PIXEL
+111 "←"
+112 ARCL "_XPOS"
+113 3
+114 1
+115 XEQ "DISPLAY"
+116 RTN
+117▸LBL 54
+118 FUNC 00
+119 "→"
+120 1
+121 +
+122 FC? 01
+123 0
+124 FS? 01
+125 5
+126 -
+127 RCL "ResX"
+128 2
+129 ÷
+130 AGRAPH
+131 X<>Y
+132 FC? 01
+133 0
+134 FS?C 01
+135 2
+136 +
+137 X<>Y
+138 2
+139 ÷
+140 "∫"
+141 AGRAPH
+142 3
+143 ×
+144 AGRAPH
+145 RTN
+146▸LBL 55
+147 RCL "ResX"
+148 XEQ 56
+149 -
+150 2
+151 ÷
+152 1
+153 XEQ "DISPLAY"
+154 1
+155 RCL "ResY"
+156 7
+157 -
+158 "←"
+159 ARCL "_YMIN"
+160 XEQ "DISPLAY"
+161 CLA
+162 X<>Y
+163 R↓
+164 RCL "_YMAX"
+165 RCL- "_YMIN"
+166 2
+167 ÷
+168 ARCL ST X
+169 XEQ 56
+170 X<>Y
+171 "←"
+172 ARCL ST X
+173 FP
+174 X=0?
+175 0
+176 X≠0?
+177 4
+178 X<>Y
+179 R↓
+180 -
+181 2
+182 ÷
+183 +/-
+184 RCL "ResX"
+185 2
+186 ÷
+187 +
+188 X<>Y
+189 XEQ "DISPLAY"
+190 X<>Y
+191 R↓
+192 CLA
+193 RCL "ResX"
+194 ARCL "_YMAX"
+195 XEQ 56
+196 -
+197 1
+198 +
+199 X<>Y
+200 "←"
+201 ARCL "_YMAX"
+202 XEQ "DISPLAY"
+203 RTN
+204▸LBL 56
+205 ALENG
+206 4
+207 ×
+208 RTN
+209▸LBL 99
+210 RCL "_GrMod"
+211 STO "GrMod"
+212 END
+

@@ -1,0 +1,42 @@
+@ Convert 10 kOhm NTC resistance to temperature in °C
+00 { 98-Byte Prgm }
+01▸LBL "R2T"
+02 10
+03 ÷
+04 LN
+05 STO 00
+06 3.3540154ᴇ-3
+07 STO 01
+08 2.5627725ᴇ-4
+09 STO 02
+10 2.082921ᴇ-6
+11 STO 03
+12 7.3003206ᴇ-8
+13 STO 04
+14 RCL 00
+15 3
+16 Y↑X
+17 RCL× 04
+18 RCL 00
+19 X↑2
+20 RCL× 03
+21 +
+22 RCL 00
+23 RCL× 02
+24 +
+25 RCL+ 01
+26 1/X
+27 273.15
+28 -
+29 END
+
+@ Conversion frontend for use with the solver application
+00 { 39-Byte Prgm }
+01▸LBL "T←→R"
+02 MVAR "T/°C"
+03 MVAR "R/Ohm"
+04 RCL "R/Ohm"
+05 XEQ "R2T"
+06 RCL- "T/°C"
+07 END
+

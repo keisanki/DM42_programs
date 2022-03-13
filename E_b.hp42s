@@ -1,0 +1,32 @@
+@ Binding energy of Feshbach molecule of atoms with masses M1 and M2.
+@ Set up as equation for use with the solver to get required parameter.
+00 { 126-Byte Prgm }
+01▸LBL "E_b"
+02 MVAR "M1"
+03 MVAR "M2"
+04 MVAR "a/a0"
+05 MVAR "E/Hz"
+06 RCL "M1"
+07 1/X
+08 RCL "M2"
+09 1/X
+10 +
+11 1/X
+12 16605390666ᴇ-37
+13 ×
+14 STO 01
+15 1054571817ᴇ-43
+16 X↑2
+17 2
+18 ÷
+19 RCL÷ 01
+20 RCL "a/a0"
+21 529177210903ᴇ-22
+22 ×
+23 X↑2
+24 ÷
+25 662607015ᴇ-42
+26 ÷
+27 RCL- "E/Hz"
+28 END
+

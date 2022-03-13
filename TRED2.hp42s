@@ -1,0 +1,452 @@
+LBL "TRED2"
+@ Perform a Householder reduction of a real symetric matrix
+@ to tridiagonal form. See Numerical recipes for more info.
+@ Note that on the HP42S arrays start from 1.
+@
+@ A reminder of the HP42S matrix addressing scheme:
+@ MZ[I][J] = MZ[ST Y][ST X] = MZ[row][column]
+@
+@ input:
+@  MZ: NxN real, symmetric matrix
+@
+@ output:
+@  VD: 1xN vector of diagonal elements
+@  VE: 1xN vector of off-diagonal elements (first element dummy)
+@  MZ: orthogonal rotation matrix
+@
+@ internally used:
+@  REG 01: dimension of matrix (N)
+@  REG 02: iterator of outermost loop (i)
+@  REG 03: index of last entry in row before diagonal (l)
+@  REG 04: inner loop iterator (k)
+@  REG 05: inner loop iterator (j)
+@  REG 06: calculation helper (scale)
+@  REG 07: calculation helper (h)
+@  REG 08: calculation helper (f)
+@  REG 09: calculation helper (g)
+@  REG 10: calculation helper (hh)
+RCL "MZ"
+DIM?
+STO 01		@ N = dim(MZ)
+1
+X<>Y
+NEWMAT
+STO "VD"        @ VD = 1 x n vector
+STO "VE"        @ VE = 1 x n vector
+RCL 01          @ N
+0.001
++
+STO 02		@ i=N; i>=2; i--
+LBL 10          @ do {
+	RCL 02          @ i
+	IP
+	1
+	-
+	STO 03          @ l = i-1
+	0
+	STO 06          @ scale = 0
+	STO 07		@ h = 0
+	RCL 03          @ l
+	1
+	X<Y?            @ if (l>1) {
+		GTO 20
+	INDEX "MZ"      @ } else {
+	RCL 02          @ i
+	RCL 03          @ l
+	STOIJ
+	RCLEL           @ MZ[i,l]
+	INDEX "VE"
+	1
+	RCL 02          @ i
+	STOIJ
+	R↓
+	R↓
+	STOEL           @ VE[i] = MZ[i,l] }
+	LBL 11          @ mark for after "if (l>1) else" part
+	INDEX "VD"
+	1
+	RCL 02          @ i
+	STOIJ
+	RCL 07          @ h
+	STOEL           @ VD[i] = h
+DSE 02          @ } while (i>=2)
+	GTO 10
+GTO 30          @ jump to 2nd next processing loop
+LBL 20          @ handle (l>1) case
+	RCL 03          @ l
+	1ᴇ3
+	÷
+	1
+	+
+	STO 04          @ k=1; k<=l; k++
+	INDEX "MZ"
+	RCL 02          @ i
+	RCL 04          @ k
+	STOIJ
+	LBL 21          @ do {
+		RCLEL
+		ABS
+		STO+ 06         @ scale += abs(MZ[i,k])
+		J+              @ go to MZ[i,k+1]
+	ISG 04          @ } while (k<=l)
+		GTO 21
+	RCL 06          @ scale
+	X≠0?            @ if (scale!=0) {
+		GTO 22
+	INDEX "MZ"      @ } else {
+	RCL 02          @ i
+	RCL 03          @ l
+	STOIJ
+	RCLEL           @ MZ[i,l]
+	INDEX "VE"
+	1
+	RCL 02          @ i
+	STOIJ
+	R↓
+	R↓
+	STOEL           @ VE[i] = MZ[i,l]
+	GTO 11          @ } continue with main loop
+LBL 22          @ handle (scale!=0) case {
+	RCL 03          @ l
+	1ᴇ3
+	÷
+	1
+	+
+	STO 04          @ k=1; k<=l; k++
+	INDEX "MZ"
+	RCL 02          @ i
+	RCL 04          @ k
+	STOIJ
+	LBL 23          @ do {
+		RCLEL           @ MZ[i,k]
+		RCL÷ 06         @ MZ[i,k]/scale
+		STOEL           @ MZ[i,k] /= scale
+		X^2
+		STO+ 07         @ h += MZ[i,k]^2
+		J+              @ go to MZ[i,k+1]
+	ISG 04          @ } while (k<=l)
+		GTO 23
+	RCL 02          @ i
+	RCL 03          @ l
+	STOIJ
+	RCLEL           @ MZ[i,l]
+	STO 08          @ f = MZ[i,l]
+	RCL 07          @ h
+	SQRT            @ sqrt(h)
+	RCL 08          @ f
+	SIGN
+	+/-             @ f>=0 ? -1 : 1
+	×               @ if (f>=0) ? -sqrt(h) : sqrt(h)
+	STO 09          @ g = (f>=0 ? -sqrt(h) : sqrt(h))
+	RCL× 06         @ scale*g
+	INDEX "VE"
+	1
+	RCL 02          @ i
+	STOIJ
+	R↓
+	R↓
+	STOEL           @ VE[i] = scale*g
+	RCL 09          @ g
+	RCL× 08         @ f*g
+	STO- 07         @ h -= f*g
+	INDEX "MZ"
+	RCL 02          @ i
+	RCL 03          @ l
+	STOIJ
+	RCL 08          @ f
+	RCL- 09         @ f-g
+	STOEL           @ MZ[i,l] = f-g
+	0
+	STO 08          @ f = 0
+	RCL 03          @ l
+	1ᴇ3
+	÷
+	1
+	+
+	STO 05          @ j=1; j<=l; j++
+	LBL 24          @ do {
+		INDEX "MZ"
+		RCL 02          @ i
+		RCL 05          @ j
+		STOIJ
+		RCLEL           @ MZ[i,j]
+		RCL÷ 07         @ MZ[i,j]/h
+		RCL 05          @ j
+		RCL 02          @ i
+		STOIJ
+		R↓
+		R↓
+		STOEL           @ MZ[j,i] = MZ[i,j]/h
+		0
+		STO 09          @ g = 0
+		RCL 05          @ j
+		IP
+		1ᴇ3
+		÷
+		1
+		+
+		STO 04          @ k=1; k<=j; k++
+		LBL 25          @ do {
+			RCL 02          @ i
+			RCL 04          @ k
+			STOIJ
+			RCLEL           @ MZ[i,k]
+			RCL 05          @ j
+			RCL 04          @ k
+			STOIJ
+			R↓
+			R↓
+			RCLEL           @ MZ[j,k]
+			×
+			STO+ 09         @ g += MZ[j,k]*MZ[i,k]
+		ISG 04          @ } while (k<=j)
+			GTO 25
+		RCL 03          @ l
+		RCL 05          @ j
+		IP
+		X=Y?            @ skip next do-while loop if (j==l)
+			GTO 81
+		RCL 03          @ l
+		1ᴇ3
+		÷
+		RCL 05          @ j
+		IP
+		1
+		+               @ j+1
+		+
+		STO 04          @ k=j+1; k<=l; k++
+		LBL 26          @ do {
+			RCL 02          @ i
+			RCL 04          @ k
+			STOIJ
+			RCLEL           @ MZ[i,k]
+			RCL 04          @ k
+			RCL 05          @ j
+			STOIJ
+			R↓
+			R↓
+			RCLEL           @ MZ[k,j]
+			×
+			STO+ 09         @ g += MZ[k,j]*MZ[i,k]
+		ISG 04          @ } while (k<=l)
+			GTO 26
+		LBL 81
+		INDEX "VE"
+		1
+		RCL 05          @ j
+		STOIJ
+		RCL 09          @ g
+		RCL÷ 07         @ g/h
+		STOEL           @ VE[j] = g/h
+		INDEX "MZ"
+		RCL 02          @ i
+		RCL 05          @ j
+		STOIJ
+		R↓
+		R↓              @ VE[j] in ST X
+		RCLEL           @ MZ[i,j]
+		×
+		STO+ 08         @ f += VE[j]*MZ[i,k]
+	ISG 05          @ } while (j<=l)
+		GTO 24
+	RCL 08          @ f
+	RCL 07          @ h
+	RCL+ 07         @ h+h
+	÷               @ f/(h+h)
+	STO 10          @ hh = f/(h+h)
+	RCL 03          @ l
+	1ᴇ3
+	÷
+	1
+	+
+	STO 05          @ j=1; j<=l; j++
+	LBL 27          @ do {
+		INDEX "MZ"
+		RCL 02          @ i
+		RCL 05          @ j
+		STOIJ
+		RCLEL           @ MZ[i,j]
+		STO 08          @ f = MZ[i,j]
+		INDEX "VE"
+		1
+		RCL 05          @ j
+		STOIJ
+		RCLEL           @ VE[j]
+		RCL 10          @ hh
+		RCL× 08         @ hh*f
+		-               @ VE[j]-hh*f
+		STO 09          @ g = VE[j]-hh*f
+		STOEL           @ VE[j] = g
+		RCL 05          @ j
+		IP
+		1ᴇ3
+		÷
+		1
+		+
+		STO 04          @ k=1; k<=j; k++
+		LBL 28          @ do {
+			INDEX "VE"
+			1
+			RCL 04          @ k
+			STOIJ
+			RCLEL           @ VE[k]
+			RCL× 08         @ f*VE[k]
+			INDEX "MZ"
+			RCL 02          @ i
+			RCL 04          @ k
+			STOIJ
+			R↓
+			R↓
+			RCLEL           @ MZ[i,k]
+			RCL× 09         @ g*MZ[i,k]
+			+               @ f*VE[k]+g*MZ[i,k]
+			RCL 05          @ j
+			RCL 04          @ k
+			STOIJ
+			R↓
+			R↓
+			RCLEL           @ MZ[j,k]
+			X<>Y
+			-
+			STOEL           @ MZ[j,k] -= f*VE[k]+g*MZ[i,k]
+		ISG 04          @ } while (k<=j)
+			GTO 28
+	ISG 05          @ } while (j<=l)
+		GTO 27
+	GTO 11          @ } proceed in main loop
+LBL 30          @ assemble final form of VD and MZ
+INDEX "VD"
+1
+1
+STOIJ
+0
+STOEL           @ VD[1] = 0
+R↓
+INDEX "VE"
+STOIJ
+0
+STOEL           @ VE[1] = 0
+RCL 01          @ N
+1ᴇ3
+÷
+1
++
+STO 02          @ i=1; i<=N; i++
+LBL 31          @ do {
+	RCL 02          @ i
+	IP
+	1
+	-
+	STO 03          @ l = i-1
+	INDEX "VD"
+	1
+	RCL 02          @ i
+	STOIJ
+	RCLEL           @ VD[i]
+	X≠0?            @ if (VD[i]!=0)
+		XEQ 32
+	INDEX "MZ"
+	RCL 02          @ i
+	ENTER           @ i
+	STOIJ
+	RCLEL           @ MZ[i,i]
+	INDEX "VD"
+	1
+	RCL 02          @ i
+	STOIJ
+	R↓
+	R↓
+	STOEL           @ VD[i] = MZ[i,i]
+	INDEX "MZ"
+	RCL 02          @ i
+	ENTER           @ i
+	STOIJ
+	1
+	STOEL           @ MZ[i,i] = 1
+	RCL 03          @ l
+	X=0?
+		GTO 82          @ skip do-while loop in case (l==0)
+	1ᴇ3
+	÷
+	1
+	+
+	STO 05          @ j=1; j<=l; j++
+	LBL 36          @ do {
+		RCL 02          @ i
+		RCL 05          @ j
+		STOIJ
+		0
+		STOEL           @ MZ[i,j] = 0
+		R↓
+		X<>Y
+		STOIJ
+		0
+		STOEL           @ MZ[j,i] = 0
+	ISG 05          @ } while (j<=l)
+		GTO 36
+	LBL 82
+	ISG 02          @ } while (i<=N)
+		GTO 31
+	GTO 99          @ jump to end of program
+LBL 32          @ handle (VD[i]!=0) case {
+	INDEX "MZ"
+	RCL 03          @ l
+	X=0?
+		RTN             @ nothing to be done in case (l==0)
+	1ᴇ3
+	÷
+	1
+	+
+	STO 05          @ j=1; j<=l; j++
+	LBL 33          @ do {
+		0
+		STO 09          @ g = 0
+		RCL 03          @ l
+		1ᴇ3
+		÷
+		1
+		+
+		STO 04          @ k=1; k<=l; k++
+		LBL 34          @ do {
+			RCL 04          @ k
+			RCL 05          @ j
+			STOIJ
+			RCLEL           @ MZ[k,j]
+			RCL 02          @ i
+			RCL 04          @ k
+			STOIJ
+			R↓
+			R↓
+			RCLEL           @ MZ[i,k]
+			×
+			STO+ 09         @ g += MZ[i,k]*MZ[k,j]
+		ISG 04          @ } while (k<=l)
+			GTO 34
+		RCL 03          @ l
+		1ᴇ3
+		÷
+		1
+		+
+		STO 04          @ k=1; k<=l; k++
+		LBL 35          @ do {
+			RCL 04          @ k
+			RCL 02          @ i
+			STOIJ
+			RCLEL           @ MZ[k,i]
+			RCL× 09         @ g*MZ[k,i]
+			RCL 04          @ k
+			RCL 05          @ j
+			STOIJ
+			R↓
+			R↓
+			RCLEL           @ MZ[k,j]
+			X<>Y
+			-
+			STOEL           @ MZ[k,j] -= g*MZ[k,i]
+		ISG 04          @ } while (k<=l)
+			GTO 35
+	ISG 05          @ } while (j<=l)
+		GTO 33
+	RTN             @ }
+LBL 99
+END
