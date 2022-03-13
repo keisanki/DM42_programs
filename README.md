@@ -263,11 +263,12 @@ DM42. It is required for the HLi6 program.
 After so much physics and math a good cup of coffee is in order, preferably
 made as a V60 drip coffee. But do you always remember the proper water
 quantities and timings for the perfect cup? No? Fear not as now your DM42 (or
-Free42 on you phone) can give you a hand in maintaining the perfect timing for
-all your pours. Everything starts by a recipe which is stored in the matrix
-`V60R` it defines the names and the times (in H.MMSS format) for each step. It
-provides the total elapsed time and the time till the next step. There is even
-a previous of the upcoming step so that you can better prep yourself.
+Free42 on your phone where it admittedly looks better) can give you a hand in
+maintaining the perfect timing for all your pours. Everything starts by a
+recipe which is stored in the matrix `V60R` it defines the names and the times
+(in H.MMSS format) for each step. It provides the total elapsed time and the
+time till the next step. There is even a previous of the upcoming step so that
+you can better prep yourself.
 
 My favorite method is the 4-6 method by Tetsu Kasuya. Find the recipe at the
 end of the [V60.hp42s](V60.hp42s), use it as-is or take it as a base for your
