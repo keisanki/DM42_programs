@@ -19,7 +19,7 @@ partially relied on.
 In the following we will quickly present each of the programs in the present
 collection.
 
-### B-F
+### B-F: Lithium level splitting from Breit-Wigner formula
 
 This program calculates the energy difference (in MHz) between the two lowest
 hyperfine Zeeman levels, often denoted |1> and |2>, of Lithium-6 given the
@@ -27,65 +27,60 @@ applied magnetic field (in Gauss) using the Breit-Wigner formula. It is
 intended for use with the Solver application so it can also be used to convert
 a frequency difference back into a magnetic field.
 
-### BTOOL
+### BTOOL: Gaussian beam tools
 
-This is a collection of currently three programs for often neede calculations
+This is a collection of currently three programs for often needed calculations
 with Gaussian beams selected by a menu system. 'Imax' calculates the peak
 intensity given the beam power and the waist size, and the Rayleigh length is
 calculated by 'zR' given waist and wavelength. Finally 'Focus' is intended to
-calculate the beam waist of a Gaussian beam that is focussed by a lens.
+calculate the beam waist of a Gaussian beam that is focused by a lens.
 Parameters are the WAIST size and its position Z0 of the incident beam, its
 wavelength LAMBDA and the focal length F of the lens.
 
-### CAPA
+### CPCTR: capacitor code conversion
 
 This is a simple converter program for capacitor values. It converts between
 the nominal capacitance and the code number often printed on small capacitor
-packages.
+packages. Either enter the capacity (in Farad, e.g. 1ᴇ-7) and push `→CODE` or
+give the code (e.g. 104) and push `→VAL` for the conversion.
 
-### CMag
+### CMag: Magnetic coil set value to field conversion
 
-### CONST
+### CONST: Collection of physical constants
 
-### CPCTR
+### DB: Various power conversions from and to dBm
 
-### DB
+### E_b: Estimate binding energy of two-species Feshbach molecules
 
-### DIPOLE
+### FORT: Calculate trap parameters of a crossed beam optical trap
 
-### E_b
+### FPLOT: Advanced function plotter for the DM42 display
 
-### FORT
+### FRQCNV: Convert laser frequencies to wavelengths to energies and more
 
-### FPLOT
+### HLi6: Lithium level splitting by diagonalization of the Hamiltonian
 
-### FRQCNV
+### LATTICE: Calculation of lattice Raman-Nath interference patterns
 
-### HLi6
+### NTH: Central density of a thermal gas
 
-### LATTICE
+### OHM: Convert between colors and numerical resistor values
 
-### NTH
+### PLOT: Original HP42S function plotter for use with IR printer
 
-### OHM
+### PREFIX: Beautify numerical outputs by proper use of prefix letters
 
-### PLOT
+### PROPAG: Propagate a Gaussian laser bean through an optics system
 
-### PREFIX
+### P-WAVE: Calculation of the p-wave threshold energy
 
-### PROPAG
+### R2T: Conversion between NTC resistance and actual temperature
 
-### P-WAVE
+### TQLI: Numerical recipes TQLI routine to diagonalize symmetric tridiagonal matrices
 
-### R2T
+### TRED2: Numerical recipes TRED2 routine to reduce symmetric matrix to tridiagonal one
 
-### RESISTOR
-
-### TQLI
-
-### TRED2
-
-### V60
+### V60: Helps you through your favorite V60 coffee brewing routine
 
 ## Contact
 
