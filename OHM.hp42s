@@ -1,324 +1,326 @@
-@ Convert between colors and numerical resistor values
-00 { 669-Byte Prgm }
-01▸LBL "OHM"
-02 0
-03 STO 01
-04 STO 02
-05 STO 03
-06 CF 01
-07▸LBL A
-08 "Blck"
-09 KEY 1 XEQ 01
-10 "Brwn"
-11 KEY 2 XEQ 02
-12 "Red"
-13 KEY 3 XEQ 03
-14 "Orng"
-15 KEY 4 XEQ 04
-16 "Yllw"
-17 KEY 5 XEQ 05
-18 "Grn"
-19 KEY 6 XEQ 06
-20 KEY 7 GTO B
-21 KEY 8 GTO B
-22 KEY 9 GTO 99
-23 CLA
-24 AVIEW
-25 XEQ 30
-26 MENU
-27▸LBL 20
-28 STOP
-29 GTO 20
-30▸LBL B
-31 "Blue"
-32 KEY 1 XEQ 07
-33 "Vlt"
-34 KEY 2 XEQ 08
-35 "Grey"
-36 KEY 3 XEQ 09
-37 "Wht"
-38 KEY 4 XEQ 10
-39 "Slvr"
-40 KEY 5 XEQ 11
-41 "Gold"
-42 KEY 6 XEQ 12
-43 KEY 7 GTO A
-44 KEY 8 GTO A
-45 KEY 9 GTO 99
-46 CLA
-47 AVIEW
-48 XEQ 30
-49 MENU
-50▸LBL 21
-51 STOP
-52 GTO 21
-53▸LBL 01
-54 10
-55 STO× 01
-56 0
-57 STO+ 01
-58 XEQ 30
-59 RTN
-60▸LBL 02
-61 10
-62 STO× 01
-63 1
-64 STO+ 01
-65 XEQ 30
-66 RTN
-67▸LBL 03
-68 10
-69 STO× 01
-70 2
-71 STO+ 01
-72 XEQ 30
-73 RTN
-74▸LBL 04
-75 10
-76 STO× 01
-77 3
-78 STO+ 01
-79 XEQ 30
-80 RTN
-81▸LBL 05
-82 10
-83 STO× 01
-84 4
-85 STO+ 01
-86 XEQ 30
-87 RTN
-88▸LBL 06
-89 10
-90 STO× 01
-91 5
-92 STO+ 01
-93 XEQ 30
-94 RTN
-95▸LBL 07
-96 10
-97 STO× 01
-98 6
-99 STO+ 01
-100 XEQ 30
-101 RTN
-102▸LBL 08
-103 10
-104 STO× 01
-105 7
-106 STO+ 01
-107 XEQ 30
-108 RTN
-109▸LBL 09
-110 10
-111 STO× 01
-112 8
-113 STO+ 01
-114 XEQ 30
-115 RTN
-116▸LBL 10
-117 10
-118 STO× 01
-119 9
-120 STO+ 01
-121 XEQ 30
-122 RTN
-123▸LBL 11
-124 0.01
-125 STO 02
-126 SF 01
-127 XEQ 30
-128 RTN
-129▸LBL 12
-130 0.1
-131 STO 02
-132 SF 01
-133 XEQ 30
-134 RTN
-135▸LBL 30
-136 RCL 01
-137 STO 03
-138 RCL 02
-139 FS? 01
-140 GTO 31
-141 RCL 01
-142 10
-143 ÷
-144 ENTER
-145 IP
-146 STO 03
-147 R↓
-148 FP
-149 10
-150 ×
-151 10↑X
-152 STO 02
-153▸LBL 31
-154 STO× 03
-155 RCL 01
-156 X>0?
-157 XEQ 40
-158 AVIEW
-159 RCL 03
-160 X=0?
-161 RTN
-162 XEQ 40
-163 ├"→ "
-164 XEQ 45
-165 ├"Ohm"
-166 AVIEW
-167 RTN
-168▸LBL 40
-169 CLA
-170 RCL 01
-171 ENTER
-172 LOG
-173 IP
-174 STO 04
-175 R↓
-176 ENTER
-177 XEQ 41
-178 FC? 01
-179 RTN
-180 RCL 02
-181 0.1
-182 X=Y?
-183 ├"GD "
-184 R↓
-185 0.01
-186 X=Y?
-187 ├"SR "
-188 RTN
-189▸LBL 41
-190 R↓
-191 ENTER
-192 ENTER
-193 RCL 04
-194 10↑X
-195 ÷
-196 IP
-197 XEQ 42
-198 RCL 04
-199 10↑X
-200 ×
-201 -
-202 1
-203 STO- 04
-204 R↓
-205 RCL 04
-206 X≥0?
-207 XEQ 41
-208 RTN
-209▸LBL 42
-210 0
-211 X=Y?
-212 ├"BK "
-213 R↓
-214 1
-215 X=Y?
-216 ├"BN "
-217 R↓
-218 2
-219 X=Y?
-220 ├"RD "
-221 R↓
-222 3
-223 X=Y?
-224 ├"OG "
-225 R↓
-226 4
-227 X=Y?
-228 ├"YE "
-229 R↓
-230 5
-231 X=Y?
-232 ├"GN "
-233 R↓
-234 6
-235 X=Y?
-236 ├"BU "
-237 R↓
-238 7
-239 X=Y?
-240 ├"VT "
-241 R↓
-242 8
-243 X=Y?
-244 ├"GY "
-245 R↓
-246 9
-247 X=Y?
-248 ├"WH "
-249 R↓
-250 RTN
-251▸LBL 43
-252 0
-253 STO 04
-254 R↓
-255 XEQ 44
-256 RCL 04
-257 RTN
-258▸LBL 44
-259 10
-260 ÷
-261 ENTER
-262 FP
-263 X>0?
-264 RTN
-265 R↓
-266 1
-267 STO+ 04
-268 R↓
-269 XEQ 44
-270 RTN
-271▸LBL 45
-272 RCL 03
-273 XEQ 43
-274 3
-275 ÷
-276 IP
-277 STO 04
-278 3
-279 X<Y?
-280 STO 04
-281 RCL 03
-282 RCL 04
-283 3
-284 ×
-285 10↑X
-286 ÷
-287 AIP
-288 FP
-289 X=0?
-290 GTO 46
-291 ├"."
-292 10
-293 ×
-294 IP
-295 AIP
-296▸LBL 46
-297 RCL 04
-298 0
-299 X=Y?
-300 ├" "
-301 R↓
-302 1
-303 X=Y?
-304 ├" k"
-305 R↓
-306 2
-307 X=Y?
-308 ├" M"
-309 R↓
-310 3
-311 X=Y?
-312 ├" G"
-313 RTN
-314▸LBL 99
-315 CLMENU
-316 EXITALL
-317 CF 01
-318 CLST
-319 RCL 03
-320 RTN
-321 END
-
+@ Registers and flags used:
+@ REG 01: value during input
+@ REG 02: multiplier
+@ REG 03: final resistor value
+@ REG 04: temporary value storage
+@ FLAG 01: multiplier color given flag
+LBL "OHM"
+0
+STO 01			@ clear input value register
+STO 02			@ clear multiplier register
+STO 03			@ clear resistor value register
+CF 01			@ no multiplier color is yet given
+LBL A			@ first menu page
+	"Blck"
+	KEY 1 XEQ 01
+	"Brwn"
+	KEY 2 XEQ 02
+	"Red"
+	KEY 3 XEQ 03
+	"Orng"
+	KEY 4 XEQ 04
+	"Yllw"
+	KEY 5 XEQ 05
+	"Grn"
+	KEY 6 XEQ 06
+	KEY 7 GTO B	@ up key
+	KEY 8 GTO B	@ down key
+	KEY 9 GTO 99	@ exit key
+	CLA
+	AVIEW
+	XEQ 30		@ recover display string in ALPHA register
+	MENU
+LBL 20			@ keep the menu even if R/S is pressed
+	STOP
+	GTO 20
+LBL B			@ second menu page
+	"Blue"
+	KEY 1 XEQ 07
+	"Vlt"
+	KEY 2 XEQ 08
+	"Grey"
+	KEY 3 XEQ 09
+	"Wht"
+	KEY 4 XEQ 10
+	"Slvr"
+	KEY 5 XEQ 11
+	"Gold"
+	KEY 6 XEQ 12
+	KEY 7 GTO A	@ up key
+	KEY 8 GTO A	@ down key
+	KEY 9 GTO 99	@ exit key
+	CLA
+	AVIEW
+	XEQ 30		@ recover display string in ALPHA register
+	MENU
+LBL 21			@ keep the menu even if R/S is pressed
+	STOP
+	GTO 21
+LBL 01			@ Black -> 0
+	10
+	STO× 01
+	0
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 02			@ Brown -> 1
+	10
+	STO× 01
+	1
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 03			@ Red -> 2
+	10
+	STO× 01
+	2
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 04			@ Orange -> 3
+	10
+	STO× 01
+	3
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 05			@ Yellow -> 4
+	10
+	STO× 01
+	4
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 06			@ Green -> 5
+	10
+	STO× 01
+	5
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 07			@ Blue -> 6
+	10
+	STO× 01
+	6
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 08			@ Violet -> 7
+	10
+	STO× 01
+	7
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 09			@ Grey -> 8
+	10
+	STO× 01
+	8
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 10			@ White -> 9
+	10
+	STO× 01
+	9
+	STO+ 01
+	XEQ 30
+	RTN
+LBL 11			@ Silver -> ×0.01
+	0.01
+	STO 02
+	SF 01		@ set flag 1 to remember that multiplier is set
+	XEQ 30
+	RTN
+LBL 12			@ Gold -> ×0.1
+	0.1
+	STO 02
+	SF 01		@ set flag 1 to remember that multiplier is set
+	XEQ 30
+	RTN
+LBL 30			@ assemble and display resistor value
+	RCL 01		@ recall main value
+	STO 03		@ tentatively store it as final value
+	RCL 02		@ recall multiplier (important if FS? below is false)
+	FS? 01		@ is a multiplier already defined?
+		GTO 31	@ yes -> skip multiplier determination
+	RCL 01		@ get main value
+	10
+	÷		@ multiplier is now in fractional part
+	ENTER		@ duplicate value
+	IP		@ get interger part -> resistor value
+	STO 03		@ keep this part of the resistor value
+	R↓		@ go back to copy of fractional number
+	FP		@ get fractional part -> multiplier
+	10
+	×		@ recover multiplier as normal number
+	10↑X		@ make it into the real multiplier
+	STO 02		@ store multiplier for later pretty printing
+	LBL 31		@ we now have the multiplier in ST X
+	STO× 03		@ multiply the rest of the value to the multiplier -> complete resistor value in REG 03
+	RCL 01		@ get color value for a moment
+	X>0?		@ already some color selected?
+		XEQ 40	@ yes -> reconstruct color string
+	AVIEW		@ display what we have so far
+	RCL 03		@ return to the actual complete resistor value
+	X=0?		@ resistor value > 0 Ohm?
+		RTN	@ no -> skip display of resistor value
+	XEQ 40		@ reconstruct color string
+	├"→ "
+	XEQ 45		@ pretty print number with unit prefix
+	├"Ohm"
+	AVIEW		@ display ALPHA register
+	RTN
+LBL 40			@ build color string from input value number in REG 01
+	CLA		@ clear ALPHA register
+	RCL 01		@ put number into ST X
+	ENTER
+	LOG
+	IP
+	STO 04		@ remember order of magnitude of leftmost value (will cut initial black rings)
+	R↓		@ back at REG 01 number
+	ENTER		@ copy that is discarded at first LBL 41 function call
+	XEQ 41		@ start recursive reconstruction
+	FC? 01		@ additional multiplier color available
+		RTN	@ no -> return 
+	RCL 02		@ recall multiplier
+	0.1
+	X=Y?		@ equal 0.1?
+		├"GD "	@ gold
+	R↓
+	0.01
+	X=Y?		@ equal 0.01?
+		├"SR "	@ siler
+	RTN
+LBL 41			@ recursively reconstruct color string bast on ST X value
+	R↓		@ remove remnant from last LBL 41 function call in recursion
+	ENTER		@ copy for next recursion step
+	ENTER
+	RCL 04		@ magnitude of leftmost value
+	10↑X
+	÷
+	IP		@ have now leftmost value isolated
+	XEQ 42		@ find and append name of this color (after RTN: ST X leftmost value, ST Y original value)
+	RCL 04		
+	10↑X		@ recover value with correct order of magnitude
+	×
+	-		@ have now leftmost number removed
+	1
+	STO- 04		@ go to next digit
+	R↓		@ make the 1 from above go away
+	RCL 04
+	X>=0?		@ digits left to process?
+		XEQ 41	@ recurse to next digit
+	RTN
+LBL 42			@ add color name corresponding to value in ST X to ALPHA register
+	0
+	X=Y?
+		├"BK "
+	R↓
+	1
+	X=Y?
+		├"BN "
+	R↓
+	2
+	X=Y?
+		├"RD "
+	R↓
+	3
+	X=Y?
+		├"OG "
+	R↓
+	4
+	X=Y?
+		├"YE "
+	R↓
+	5
+	X=Y?
+		├"GN "
+	R↓
+	6
+	X=Y?
+		├"BU "
+	R↓
+	7
+	X=Y?
+		├"VT "
+	R↓
+	8
+	X=Y?
+		├"GY "
+	R↓
+	9
+	X=Y?
+		├"WH "
+	R↓
+	RTN
+LBL 43			@ determine number of trailing zeros if ST X IP
+	0
+	STO 04		@ result will be in REG 04
+	R↓
+	XEQ 44		@ recurse through zeros found
+	RCL 04		@ return numbers of zeros in ST X
+	RTN		
+LBL 44			@ recursively traverse number until no zero is left
+	10
+	÷
+	ENTER		@ duplicate number
+	FP
+	X>0?		@ fractional part non-zero?
+		RTN	@ yes -> done
+	R↓		@ return to original number at this resursion level
+	1
+	STO+ 04		@ increase zero counter by one
+	R↓		@ return to at this point integer part of remaining number
+	XEQ 44		@ next recursion instance
+	RTN		@ done
+LBL 45			@ pretty print resistance value that is in REG 03
+	RCL 03		@ recall resistance value
+	XEQ 43		@ find number of trailing zeros
+	3
+	÷
+	IP		@ exponential prefix number we can apply
+	STO 04		@ remember this in REG 04
+	3
+	X<Y?		@ prefix > Giga?
+		STO 04	@ limit prefix to 3
+	RCL 03		@ recall resistance value
+	RCL 04		@ get prefix number we decided upon
+	3
+	×
+	10↑X
+	÷		@ we now have the resistance without the prefix zeros
+	AIP		@ put this value to the ALPHA register
+	FP
+	X=0?		@ do we have a fractional number left?
+		GTO 46	@ no -> proceed directly to unit prefix	
+	├"."		@ decimal point in case of fractional resistance
+	10
+	×
+	IP
+	AIP		@ add one additional digit to the resistance
+	LBL 46
+	RCL 04		@ get again the prefix number
+	0
+	X=Y?
+		├" "
+	R↓
+	1
+	X=Y?
+		├" k"
+	R↓
+	2
+	X=Y?
+		├" M"
+	R↓
+	3
+	X=Y?
+		├" G"
+	RTN
+LBL 99			@ exit program cleanly
+	CLMENU		@ clear menu definition
+	CF 01		@ clear multiplier flag
+	EXITALL		@ exit menu system
+	CLST		@ the stack is ruined anyway
+	RCL 03		@ put resistor value into ST X
+	RTN		@ return in case this program was called from somewhere
