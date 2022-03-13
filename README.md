@@ -87,21 +87,23 @@ annotated overview of the programs and sub-labels, and
 detailed listings of all programs. Please look at both files for the details
 of the included programs and their individual inner workings.
 
-The main frontend program is FORT. In the menu one defines the control
-voltages `H-VLT` and `V-VLT` of the horizontal and vertical FORT lasers. These
-are internally converted into laser powers. With these basic settings use
-`CALC` to calculate the trap position, its frequencies and depth. The results
-are accessed via `G SAG` (the gravitational sag atoms experience in the trap)
-and `FREQ` (a summary of the three trapping frequencies). Use `PLOT` to plot a
+The main frontend program is FORT. In the menu one defines the control voltages
+`H-VLT` and `V-VLT` of the horizontal and vertical FORT lasers. These are
+internally converted into laser powers. With these basic settings use `CALC` to
+calculate the trap position, its frequencies and depth. The results are
+accessed via `G SAG` (the gravitational sag atoms experience in the trap) and
+`FREQ` (a summary of the three trapping frequencies). Use `PLOT` to plot a
 vertical cut through the center of the trap on the display of the DM42. The
-identified trap position, the trap minimum and maximum are indicated by
-vertical and horizontal lines, respectively. On the second page of the menu
-the atomic species can be selected (168Er, 174Yb, 7Li, 6Li) and the type of
+vertical zero position, the trap minimum and its maximum are indicated by
+vertical and horizontal lines, respectively. On the second page of the menu the
+atomic species can be selected (168Er, 174Yb, 7Li, 6Li) and the type of
 trapping lasers (either `1 µm` is active for a crossed FORT at 1064 and 1060
 nm, or it is not selected and a FORT operating at 1550 nm is assumed) can be
 selected. Finally, with `PRNT` a complete summary of the laser setup, the trap
 geometry and a plot of the trap potential is printed to an IR printer such as
 the HP 82240A.
+
+!(Plot of a shallow FORT potential)[images/FORT.png]
 
 Plotting relies on the excellent `DISPLAY` program originally presented by
 Bill in the [SwissMicros
@@ -159,6 +161,8 @@ order peaks as function of the pulse duration. The minima and maxima of the k = 
 curve are labeled with their respective pulse durations. Press R/S to return
 to the main menu.
 
+!(Example lattice plotting output)[images/LATTICE.png]
+
 Plotting relies on the excellent `DISPLAY` program originally presented by
 Bill in the [SwissMicros
 forum](https://forum.swissmicros.com/viewtopic.php?f=19&t=446). This routine
@@ -215,6 +219,8 @@ for some examples.
 The beam plotter BPLOT works in close analogy to the original HP-42S DPLOT
 program and plots the size of the Gaussian beam as it traverses the optical
 system. The positions of the optical elements are indicated by vertical lines.
+
+!(Propagation of a Gaussian beam through an optical sytem)[images/BPLOT.png]
 
 Finally, the cavity mode calculator CAVITY is for use with the Solver
 application and, given an optical system where the output of the last element
