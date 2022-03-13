@@ -21,21 +21,21 @@ collection.
 
 ### B-F: Lithium level splitting from Breit-Wigner formula
 
-This program calculates the energy difference (in MHz) between the two lowest
-hyperfine Zeeman levels, often denoted |1> and |2>, of Lithium-6 given the
-applied magnetic field (in Gauss) using the Breit-Wigner formula. It is
-intended for use with the Solver application so it can also be used to convert
-a frequency difference back into a magnetic field.
+This program calculates the energy difference `f/MHz` (in MHz) between the two
+lowest hyperfine Zeeman levels, often denoted |1> and |2>, of Lithium-6 given
+the applied magnetic field `B/G` (in Gauss) using the Breit-Wigner formula. It
+is intended for use with the Solver application so it can also be used to
+convert a frequency difference back into a magnetic field.
 
 ### BTOOL: Gaussian beam tools
 
 This is a collection of currently three programs for often needed calculations
-with Gaussian beams selected by a menu system. 'Imax' calculates the peak
+with Gaussian beams selected by a menu system. `Imax` calculates the peak
 intensity given the beam power and the waist size, and the Rayleigh length is
-calculated by 'zR' given waist and wavelength. Finally 'Focus' is intended to
+calculated by `zR` given waist and wavelength. Finally `Focus` is intended to
 calculate the beam waist of a Gaussian beam that is focused by a lens.
-Parameters are the WAIST size and its position Z0 of the incident beam, its
-wavelength LAMBDA and the focal length F of the lens.
+Parameters are the `WAIST` size and its position `Z0` of the incident beam, its
+wavelength `LAMBDA` and the focal length `F` of the lens.
 
 ### CPCTR: Conversion between capacitor values and codes
 
