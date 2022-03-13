@@ -99,11 +99,15 @@ vertical and horizontal lines, respectively. On the second page of the menu the
 atomic species can be selected (168Er, 174Yb, 7Li, 6Li) and the type of
 trapping lasers (either `1 µm` is active for a crossed FORT at 1064 and 1060
 nm, or it is not selected and a FORT operating at 1550 nm is assumed) can be
-selected. Finally, with `PRNT` a complete summary of the laser setup, the trap
-geometry and a plot of the trap potential is printed to an IR printer such as
-the HP 82240A.
+selected. 
 
 ![Plot of a shallow FORT potential](images/FORT.png)
+
+Finally, with `PRNT` a complete summary of the laser setup, the trap geometry
+and a plot of the trap potential is printed to an IR printer such as the HP
+82240A.
+
+![Printout of the same shallow FORT potential](images/FORT_printout.png)
 
 Plotting relies on the excellent `DISPLAY` program originally presented by
 Bill in the [SwissMicros
