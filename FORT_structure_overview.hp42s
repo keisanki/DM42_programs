@@ -234,4 +234,204 @@ LBL "FORT"
 	
 	LBL 99
 	@ Exits the program cleanly.
-	@ Clears FLAG 04. FLAG 05 and the programmable menu.
+	@ Clears FLAG 04, FLAG 05 and the programmable menu.
+
+@ Polarizabilities used:
+@ Er: 166 a.u. at 1064.5 nm from Tab. I of
+@     J. H. Becher et al., Phys. Rev. A 97, 012509 (2018).
+@ Yb: 162.5 a.u. at 1064 nm from Tab. B.2 of
+@     C. D. Herold, Dissertation, University of Maryland, 2014.
+@ Li: 269 a.u. by interpolation to 1070 nm of data in Tab. I of
+@     M. S. Safronova et al., Phys. Rev. A 73, 022505 (2006).
+@
+@ Note that the calculation of Herold (PhD) for Rb is in close agreement with
+@ the results given by Safronoa (PRA), giving credibility to Herold's data.
+
+LBL "MROT"
+@ Creates 3x3 rotation matrix Mrot = Mrot_z * Mrot_y * Mrot_x, where Mrot_i
+@ is a rotation about axis i.
+@
+@ input: 
+@  ST X, ST Y, ST Z: rotation angles along X, Y, Z
+@ output: 
+@  MROT: rotation matrix
+@  ST X: rotation matrix (copy of MROT)
+@
+@ interally used:
+@  REG 01: initial ST X (rotation angle about x)
+@  REG 02: initial ST Y (rotation angle about y)
+@  REG 03: initial ST Z (rotation angle about z)
+
+
+LBL "WSTZ"
+@ Calculates beam radius of Gaussian beam at distance Z from waist position.
+@
+@ input:
+@  ST x: distance Z from waist
+@  LAMBDA: wavelength
+@  WAIST: waist size
+@
+@ output:
+@  ST X: beam radius at Z
+
+
+LBL "IGAUSS"
+@ Calculates the intensity of an elliptical Gauss beam oriented in an 
+@ arbitrary direction at and arbitrary position in space. The beam is
+@ assumed to go through the origin of the coordinate system and to also
+@ have its waist there.
+@
+@ input:
+@  ME: 3x3 matrix containing unit vectors with beam geometry.
+@      column 1: direction of 1st waist
+@      column 2: direction of 2nd waist
+@      column 3: direction of beam propagation
+@      (Effectively this is just MROT)
+@  WST1: size of 1st waist
+@  WST2: size of 2nd waist
+@  LAMBDA: wavelength
+@  VR: 3x1 vector with (x, y, z) laboratory position where intensity is wanted
+@  POWER: Total power of beam
+@
+@ output:
+@  ST X: intensity at position VR
+@
+@ internally used:
+@  REG 04: position in 1st waist direction
+@  REG 05: position in 2nd waist direction
+@  REG 06: position along beam axis
+@  REG 07: radius of beam in 1st waist direction
+@  REG 08: radius of beam in 2nd waist direction
+@  REG 10-12: used during plotting
+	LBL A
+	@ Get (rotated) unit vector that defines beam coordinate system
+	@ input: 
+	@  ST X: axis selection (1, 2 or 3)
+	@  ME: 3x3 matrix containing unit vectors as column vectors
+	@ return: 
+	@  ST X: 3x1 vector that is the column vector of MROT at position ST X
+	LBL "B"
+	@ Get position of laboratory frame vector for one axis in the beam frame
+	@ input:
+	@  ST X: beam frame axis selection (1, 2 or 3)
+	@  VR: 3x1 column vector with (x, y, z) laboratory frame position
+	@  ME: 3x3 matrix containing unit vectors as column vectors
+	@ output:
+	@  ST X: position of vector along axis that was selected by ST X
+
+LBL "IFORT"
+@ Calculates the intensity of the crossed FORT at the given position and
+@ with the given powers.
+@
+@ For the ErYbLi experiment we assume the following laboratory coordinate frame:
+@  X: Zeeman slower direction
+@  Y: H-FORT direction
+@  Z: V-FORT direction
+@
+@ input:
+@  VR: 3x1 vector with (x, y, z) laboratory position where intensity is wanted
+@  PWRH: Power of horizontal FORT
+@  PWRV: Power of vertical FORT
+@  MEH: Maxtrix of H-FORT unit column vectors
+@       (waist 1 direction, waist 2 direction, propagation direction)
+@  MEV: Maxtrix of V-FORT unit colums vectors
+@       (waist 1 direction, waist 2 direction, propagation direction)
+@
+@ output:
+@  ST X: intensity at position VR
+@
+@ internally used:
+@  REG 04-08: in the execution of IGAUSS
+@  REG 09: intermediate result from intensity calculation
+@  LAMBDA: wavelength of beams
+@  POWER: power of current FORT beam
+@  WST1, WST2: waists of beams
+
+LBL "UFORT"
+@ Calculates the potential of the crossed FORT including gravity.
+@ Currently polarization and mass are hard-coded for Erbium.
+@
+@ input:
+@  VR: 3x1 vector with (x, y, z) laboratory position where potential is wanted
+@  POLARI: Polarizability in atomic units (positive for attractive potential)
+@  MASS: Atomic mass in amu
+@  PWRH: Power of horizontal FORT (used by IFORT)
+@  PWRV: Power of vertical FORT (used by IFORT)
+@  MEH: Matrix of H-FORT unit column vectors
+@       (waist 1 direction, waist 2 direction, propagation direction)
+@  MEV: Matrix of V-FORT unit column vectors
+@       (waist 1 direction, waist 2 direction, propagation direction)
+@
+@ output:
+@  ST X: potential at VF (in Joule)
+@
+@ internally used:
+@  REG 04-08: in the execution of IGAUSS
+@  REG 09: intermediate result from intensity calculation
+@  LAMBDA, WST1, WST2: in the execution of IFORT
+
+LBL "UDERIV"
+@ Calculates either the 1st derivatives (Jacobian) of the potential (FLAG 01 is 
+@ false) or the 2nd derivates (Hessian) (FLAG 01 is true) at position VR.
+@ 
+@ input:
+@  VR: 3x1 vector with (x, y, z) laboratory position where potential is wanted
+@  PWRH: Power of horizontal FORT (used by IFORT)
+@  PWRV: Power of vertical FORT (used by IFORT)
+@  MEH: Matrix of H-FORT unit column vectors
+@       (waist 1 direction, waist 2 direction, propagation direction)
+@  MEV: Matrix of V-FORT unit colums vectors
+@       (waist 1 direction, waist 2 direction, propagation direction)
+@  FLAG 01: 1st or 2nd derivative selection
+@
+@ output:
+@  ST X: derivative (either 3x1 or 3x3 matrix)
+@
+@ internally used (global storage):
+@  REG 04-08: in the execution of IGAUSS
+@  REG 09: in the execution of IFORT
+@  REG 10: step size in numerical derivative
+@  LAMBDA, WST1, WST2: in the execution of IFORT
+@ internally used (local storage):
+@  COOR: coordinate for which to calculate the derivative (1, 2 or 3)
+@  VDER1: 3x1 column vector that holds the 1st derivative
+	LBL A
+	@ Calculate a single 1st derivative and store result into the 
+	@ correct position of VDER1.
+	@
+	@ input:
+	@  COOR: coordinate for which to calculate the derivative (1, 2 or 3)
+	@
+	@ output:
+	@  VDER1: 3x1 column vector of 1st derivatives with updated element
+	@
+	@ internally used (local storage):
+	@  VAL1: function value at positive step
+	@  VAL2: function value at negative step
+	LBL B
+	@ Calculate the complete Hessian matrix.
+	@
+	@ input:
+	@  -- nothing additional --
+	@
+	@ output:
+	@  ST X: 2nd derivative 3x3 matrix
+	@
+	@ internally used (local storage):
+	@  MDER2: 3x3 matrix that hold the 2nd derivative
+	@  C2: coordinate of the 2nd derivative
+	LBL C
+	@ Calculate a single element of the Hessian matrix and store
+	@ the value into the correct position of MDER2.
+	@
+	@ input:
+	@  COOR: coordinate of the 'inner' 1st derivate
+	@  ST X: coordinate of the 2nd derivative
+	@
+	@ output:
+	@  MDER2: 3x3 matrix of 2nd derivatives with updated element
+	@
+	@ internally used (local storage):
+	@  VAL1: function value at positive step
+	@  VAL2: function value at negative step
+
