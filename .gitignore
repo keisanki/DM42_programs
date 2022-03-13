@@ -2,5 +2,6 @@
 *.f42
 *.txt
 *.py
+*.old
 DISPLAY
 wp43s
