@@ -37,7 +37,7 @@ calculate the beam waist of a Gaussian beam that is focused by a lens.
 Parameters are the WAIST size and its position Z0 of the incident beam, its
 wavelength LAMBDA and the focal length F of the lens.
 
-### CPCTR: capacitor code conversion
+### CPCTR: Conversion between capacitor values and codes
 
 This is a simple converter program for capacitor values. It converts between
 the nominal capacitance and the code number often printed on small capacitor
