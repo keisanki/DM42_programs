@@ -103,7 +103,7 @@ selected. Finally, with `PRNT` a complete summary of the laser setup, the trap
 geometry and a plot of the trap potential is printed to an IR printer such as
 the HP 82240A.
 
-!(Plot of a shallow FORT potential)[images/FORT.png]
+![Plot of a shallow FORT potential](images/FORT.png)
 
 Plotting relies on the excellent `DISPLAY` program originally presented by
 Bill in the [SwissMicros
@@ -161,7 +161,7 @@ order peaks as function of the pulse duration. The minima and maxima of the k = 
 curve are labeled with their respective pulse durations. Press R/S to return
 to the main menu.
 
-!(Example lattice plotting output)[images/LATTICE.png]
+![Example lattice plotting output](images/LATTICE.png)
 
 Plotting relies on the excellent `DISPLAY` program originally presented by
 Bill in the [SwissMicros
@@ -220,7 +220,7 @@ The beam plotter BPLOT works in close analogy to the original HP-42S DPLOT
 program and plots the size of the Gaussian beam as it traverses the optical
 system. The positions of the optical elements are indicated by vertical lines.
 
-!(Propagation of a Gaussian beam through an optical sytem)[images/BPLOT.png]
+![Propagation of a Gaussian beam through an optical sytem](images/BPLOT.png)
 
 Finally, the cavity mode calculator CAVITY is for use with the Solver
 application and, given an optical system where the output of the last element
