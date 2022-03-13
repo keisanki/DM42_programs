@@ -19,7 +19,7 @@ partially relied on.
 In the following we will quickly present each of the programs in the present
 collection.
 
-###B-F
+### B-F
 
 This program calculates the energy difference (in MHz) between the two lowest
 hyperfine Zeeman levels, often denoted |1> and |2>, of Lithium-6 given the
@@ -27,7 +27,7 @@ applied magnetic field (in Gauss) using the Breit-Wigner formula. It is
 intended for use with the Solver application so it can also be used to convert
 a frequency difference back into a magnetic field.
 
-###BTOOL
+### BTOOL
 
 This is a collection of currently three programs for often neede calculations
 with Gaussian beams selected by a menu system. 'Imax' calculates the peak
@@ -37,57 +37,55 @@ calculate the beam waist of a Gaussian beam that is focussed by a lens.
 Parameters are the WAIST size and its position Z0 of the incident beam, its
 wavelength LAMBDA and the focal length F of the lens.
 
-###CAPA
+### CAPA
 
 This is a simple converter program for capacitor values. It converts between
 the nominal capacitance and the code number often printed on small capacitor
 packages.
 
-###CMag
+### CMag
 
-###CONST
+### CONST
 
-###CPCTR
+### CPCTR
 
-###DB
+### DB
 
-###DIPOLE
+### DIPOLE
 
-###E_b
+### E_b
 
-###FORT_structure_overview
+### FORT
 
-###FORT_with_subprograms
+### FPLOT
 
-###FPLOT
+### FRQCNV
 
-###FRQCNV
+### HLi6
 
-###HLi6
+### LATTICE
 
-###LATTICE
+### NTH
 
-###NTH
+### OHM
 
-###OHM
+### PLOT
 
-###PLOT
+### PREFIX
 
-###PREFIX
+### PROPAG
 
-###PROPAG
+### P-WAVE
 
-###P-WAVE
+### R2T
 
-###R2T
+### RESISTOR
 
-###RESISTOR
+### TQLI
 
-###TQLI
+### TRED2
 
-###TRED2
-
-###V60
+### V60
 
 ## Contact
 
