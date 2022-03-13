@@ -271,7 +271,7 @@ Free42 on your phone where it admittedly looks better) can give you a hand in
 maintaining the perfect timing for all your pours. Everything starts by a
 recipe which is stored in the matrix `V60R` it defines the names and the times
 (in H.MMSS format) for each step. It provides the total elapsed time and the
-time till the next step. There is even a previous of the upcoming step so that
+time till the next step. There is even a preview of the upcoming step so that
 you can better prep yourself.
 
 My favorite method is the 4-6 method by Tetsu Kasuya. Find the recipe at the
