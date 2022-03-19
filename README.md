@@ -97,9 +97,8 @@ vertical cut through the center of the trap on the display of the DM42. The
 vertical zero position, the trap minimum and its maximum are indicated by
 vertical and horizontal lines, respectively. On the second page of the menu the
 atomic species can be selected (168Er, 174Yb, 7Li, 6Li) and the type of
-trapping lasers (either `1 µm` is active for a crossed FORT at 1064 and 1060
-nm, or it is not selected and a FORT operating at 1550 nm is assumed) can be
-selected. 
+trapping lasers (current options are `1 µm` for a crossed FORT at 1064 and 1070
+nm, and `1.5 µm` for a FORT operating at 1550 nm) can be selected. 
 
 ![Plot of a shallow FORT potential](images/FORT.png)
 
