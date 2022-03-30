@@ -238,10 +238,13 @@ LBL "FORT"
 
 @ Polarizabilities used:
 @ Er: 166 a.u. at 1064.5 nm from Tab. I of
+@     163 a.u. at 1570.0 nm from Tab. I of
 @     J. H. Becher et al., Phys. Rev. A 97, 012509 (2018).
 @ Yb: 162.5 a.u. at 1064 nm from Tab. B.2 of
+@     150.4 at 1550.0 nm by repetition of calculation Eq. (B.2)
 @     C. D. Herold, Dissertation, University of Maryland, 2014.
 @ Li: 269 a.u. by interpolation to 1070 nm of data in Tab. I of
+@     201.3 a.u. from data in Tab. I of
 @     M. S. Safronova et al., Phys. Rev. A 73, 022505 (2006).
 @
 @ Note that the calculation of Herold (PhD) for Rb is in close agreement with
