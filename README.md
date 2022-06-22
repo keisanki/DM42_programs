@@ -261,6 +261,13 @@ DM42. It is required for the HLi6 program.
 This is an implementation of the TRED2 routine of Numerical recipes for the
 DM42. It is required for the HLi6 program.
 
+### UTIME: Conversion between UNIX time and "standard" time notation
+
+This is a small utility to convert between date/time in the usual notation and
+in UNIX time, that is the seconds since 1970/01/01. Alternatively, when FLAG
+01 is set, the seconds since 1904/01/01 can also be calculated which is the
+convention used by LabView.
+
 ### V60: Helps you through your favorite V60 coffee brewing routine
 
 After so much physics and math a good cup of coffee is in order, preferably

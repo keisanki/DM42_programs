@@ -1,0 +1,110 @@
+@ Conversion between UNIX time and "standard" time format
+@
+@ FLAG 01 sets the reference date for the conversion
+@  FLAG 01 is clear: 1970/01/01 (UNIX convention)
+@  FLAG 01 is set:   1904/01/01 (LabView convention)
+@
+@ FLAG 02 is temporarily used to toggle FLAG 01
+@
+@ Local variable TZ sets the time zone, e.g. +9 for JST.
+@ This is because we convert between the standard local time
+@ and UNIX time which is in UTC.
+@
+00 { 249-Byte Prgm }
+01▸LBL "UTIME"
+02 9
+03 LSTO "TZ"
+04 DROP
+05▸LBL 00		@ main menu
+06 CLMENU
+07 "NOW"
+08 KEY 1 XEQ A
+09 "→TIME"
+10 KEY 2 XEQ B
+11 "→UNIX"
+12 KEY 3 XEQ C
+13 "TZ:"
+14 RCL "TZ"
+15 AIP
+16 DROP
+17 KEY 5 XEQ 15
+18 FC? 01
+19 "1970"
+20 FS? 01
+21 "1904"
+22 KEY 6 XEQ 10
+23 KEY 9 GTO 99
+24 MENU
+25 STOP
+26 GTO 00
+27▸LBL 10		@ toggle FLAG 01
+28 CF 02
+29 FC? 01
+30 SF 02
+31 FS? 01
+32 CF 01
+33 FS?C 02
+34 SF 01
+35 RTN
+36▸LBL 15		@ query for time zone
+37 INPUT "TZ"
+38 DROP
+39 DROP
+40 RTN
+41▸LBL 20		@ set reference date based on FLAG 01
+42 FC? 01
+43 1970.0101
+44 FS? 01
+45 1904.0101
+46 RTN
+47▸LBL A		@ convert current time to UNIX time
+48 XEQ 20		@  UNIX time will be in ST X
+49 DATE
+50 DDAYS
+51 86400
+52 ×
+53 TIME
+54 →HR
+55 RCL- "TZ"
+56 3600
+57 ×
+58 +
+59 RTN
+60▸LBL B		@ convert UNIX time to "standard" time
+61 3600			@  date will be in ST Y
+62 RCL× "TZ"		@  time will be in ST X
+63 +			@  date/time string will be in ALPHA
+64 86400
+65 ÷
+66 DUP
+67 XEQ 20
+68 X<>Y
+69 DATE+
+70 CLA
+71 ADATE
+72 ├" "
+73 X<>Y
+74 FP
+75 24
+76 ×
+77 →HMS
+78 ATIME
+79 AVIEW
+80 RTN
+81▸LBL C		@ convert "standard" time to UNIX time
+82 X<>Y			@  input date is in ST Y
+83 XEQ 20		@  input time is in ST X
+84 X<>Y			@  UNIX time will be in ST X
+85 DDAYS
+86 86400
+87 ×
+88 X<>Y
+89 →HR
+90 RCL- "TZ"
+91 3600
+92 ×
+93 +
+94 RTN
+95▸LBL 99		@ exit program
+96 END
+
