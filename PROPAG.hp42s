@@ -243,14 +243,20 @@ LBL A
 	X=Y?		// "AUTO" button pressed?
 		GTO 06		// automatic parameter determination
 	CLA
-	15		// for DM42 use: RCL "ResY"\n 1\n -
+	HEIGHT
+	1
+	-
 	RCL "YMAX"
 	RCL- "YMIN"
 	÷
 	STO 10
 	RCL "XMIN"
 	STO 11
-	1.131		// for DM42 use: 1\n RCL "ResX"\n 1000\n ÷\n +\n
+	WIDTH
+	1000
+	÷
+	1
+	+
 	STO 12
 	CLLCD
 	XEQ a
@@ -263,7 +269,7 @@ LBL A
 		PIXEL		// draw a pixel
 		RCL "XMAX"
 		RCL- "XMIN"
-		131		// for DM42 use: RCL "ResX"
+		WIDTH
 		÷
 		STO+ 11
 		ISG 12		// proceed to next position if possible
@@ -274,7 +280,7 @@ LBL A
 LBL 02		// Determine vertical position of pixel from ST X function value
 	RCL- "YMIN"
 	RCL× 10
-	16	// for DM42 use: RCL "ResY"
+	HEIGHT
 	-
 	X>0?
 		CLX
@@ -333,7 +339,7 @@ LBL 05		// Draw a vertical line at REG 15 (not yet in display units)
 	RCL "XMAX"
 	RCL- "XMIN"
 	÷
-	131		// for DM42 use: RCL "ResX"
+	WIDTH
 	×
 	+/-
 	1
@@ -381,7 +387,11 @@ LBL 06 		// Automatic parameter determination
 	LBL 09		// continue ("XMAX" now contains total distance)
 	RCL "XMIN"
 	STO 11
-	1.131		// prepare loop counter, DM42: RCL "ResX"\n 1000\n ÷\n +
+	WIDTH
+	1000
+	÷
+	1
+	+
 	STO 12
 	LBL 10		// start of "plotting" loop
 		RCL 11
@@ -392,7 +402,7 @@ LBL 06 		// Automatic parameter determination
 			STO "YMAX"
 		RCL "XMAX"
 		RCL- "XMIN"
-		131		// for DM42 use: RCL "ResX"
+		WIDTH
 		÷
 		STO+ 11
 		ISG 12

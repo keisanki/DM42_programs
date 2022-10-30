@@ -252,7 +252,7 @@ LBL D
 	STO "YMAX"	@ upper limit is population 1.0
 	0
 	STO "YMIN"	@ lower limit is population 0.0
-	RCL "ResY"
+	HEIGHT
 	10
 	-		@ leave 10 pixel free at the bottom
 	1
@@ -264,7 +264,7 @@ LBL D
 	RCL "XMIN"
 	STO 11		@ x position (in physical units)
 	1
-	RCL "ResX"
+	WIDTH
 	1ᴇ3
 	÷
 	+
@@ -303,7 +303,7 @@ LBL D
 		PIXEL			@ plot point
 		RCL "XMAX"
 		RCL- "XMIN"
-		RCL "ResX"
+		WIDTH
 		÷
 		STO+ 11			@ go to next point
 		ISG 12			@ not yet at end of plot area?
@@ -323,7 +323,7 @@ LBL D
 		@  ST X: vertial position on screen (in pixel)
 		RCL- "YMIN"
 		RCL× 10
-		RCL "ResY"
+		HEIGHT
 		10
 		-			@ leave 10 px free at the bottom
 		-
@@ -351,7 +351,7 @@ LBL D
 		RCL "XMAX"
 		RCL- "XMIN"
 		÷
-		RCL "ResX"
+		WIDTH
 		×
 		+/-
 		1
@@ -359,7 +359,7 @@ LBL D
 		PIXEL
 		2
 		+		@ go two pixel to the right
-		RCL "ResY"
+		HEIGHT
 		7		@ vertical position at 6 pixel below bottom
 		-
 		XEQ "DISPLAY"	@ write time label at above position
