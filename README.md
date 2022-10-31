@@ -174,6 +174,9 @@ use a slightly modified version of this program by encapsulating everything in
 a 'FUNC 00' call to prevent any changes of the stack by the execution of
 DISPLAY.
 
+Additionally, the helper program [TQLI.hp42s](TQLI.hp42s) for matrix
+diagonalization is required.
+
 ### NTH: Central density of a thermal gas
 
 This simple program calculates the central density of a thermal gas in a
@@ -254,7 +257,7 @@ polynomial.
 ### TQLI: Numerical recipes TQLI routine to diagonalize symmetric tridiagonal matrices
 
 This is an implementation of the TQLI routine of Numerical recipes for the
-DM42. It is required for the HLi6 program.
+DM42. It is required for the HLi6 and LATTICE programs.
 
 ### TRED2: Numerical recipes TRED2 routine to reduce symmetric matrix to tridiagonal one
 
