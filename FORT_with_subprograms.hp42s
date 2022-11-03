@@ -1455,9 +1455,9 @@
 @@@@ V2P: Fitting coefficients for FORT power conversion polynomial.
 @@@@      rows are: 1 µm H-FORT, 1.5 µm H-VORT, 1 µm V-FORT, 1.5 µm V-FORT
 -0.029478	7.53377	0.0520934	-0.0206148
--0.029478	7.53377	0.0520934	-0.0206148
+0.360075	5.317964	-0.581398	0.819681
 -0.018777	7.51901	-0.156907	0.0436008
--0.018777	7.51901	-0.156907	0.0436008
+0.261548	3.570464	0.240260	-0.086191
 
 @@@@ MEH: Rotation matrix for convertion into H-FORT frame
 @@@@      column 1: direction of waist 1 -> ZS direction (x)
