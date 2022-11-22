@@ -1,0 +1,25 @@
+@ Convert between time-of-flight cloud width and temperature.
+@ Set up as equation for use with the solver to get required parameter.
+00 { 109-Byte Prgm }
+01▸LBL "s←→T"
+02 MVAR "s/μm"
+03 MVAR "t/ms"
+04 MVAR "m/amu"
+05 MVAR "T/μK"
+06 1ᴇ-6
+07 RCL× "s/μm"
+08 X↑2
+09 1ᴇ-3
+10 RCL× "t/ms"
+11 X↑2
+12 ÷
+13 RCL× "m/amu"
+14 1.6605390666ᴇ-27     @ 1 amu in kg
+15 ×
+16 1.380649ᴇ-23         @ Boltzmann constant
+17 ÷
+18 1ᴇ-6                 @ convert form K to μK
+19 ÷
+20 RCL- "T/μK"
+21 END
+

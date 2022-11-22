@@ -257,6 +257,15 @@ In the current version the NTC is assumed to be of type EC95F and the
 conversion is parameterized for the range 0 to 50°C as a third order
 polynomial.
 
+### S-T: Converstion between time-of-flight cloud width and temperature
+
+This small tool, s←→T, is to determine the temperature of a cold atomic cloud
+from the width of a Gaussian fit to a time-of-flight image. Necessary values
+are the width `s/μm` (the 'sigma' width), the expansion time `t/ms` and the
+atomic mass `a/amu`. The temperature is then given in `T/μK`. For maximal
+flexibility the program is designed for the Solver application so that any
+unknown parameter may be determined.
+
 ### TQLI: Numerical recipes TQLI routine to diagonalize symmetric tridiagonal matrices
 
 This is an implementation of the TQLI routine of Numerical recipes for the
