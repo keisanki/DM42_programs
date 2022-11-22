@@ -1,32 +1,78 @@
 @ Binding energy of Feshbach molecule of atoms with masses M1 and M2.
 @ Set up as equation for use with the solver to get required parameter.
-00 { 126-Byte Prgm }
+00 { 140-Byte Prgm }
 01▸LBL "E_b"
 02 MVAR "M1"
 03 MVAR "M2"
 04 MVAR "a/a0"
-05 MVAR "E/Hz"
+05 MVAR "r0/a0"
+06 MVAR "E/Hz"
+07 RCL "M1"
+08 1/X
+09 RCL "M2"
+10 1/X
+11 +
+12 1/X
+13 1.6605390666ᴇ-27     @ 1 amu in kg
+14 ×
+15 STO 01               @ REG 01 now contains reduced mass
+16 1.054571817ᴇ-34      @ reduced Planck constant
+17 X↑2
+18 2
+19 ÷
+20 RCL÷ 01
+21 RCL "a/a0"
+22 RCL- "r0/a0"         @ finite interaction range correction, see PRGM below
+23 5.29177210903ᴇ-11    @ Bohr radius (a0)
+24 ×
+25 X↑2
+26 ÷
+27 6.62607015ᴇ-34       @ Planck constant
+28 ÷
+29 RCL- "E/Hz"
+30 END
+
+@ Helper program to convert between C6 coefficient and r0 range parameter.
+@ Set up as equation for use with the solver to get required parameter.
+00 { 167-Byte Prgm }
+01▸LBL "C6-r0"
+02 MVAR "C6/au"
+03 MVAR "r0/a0"
+04 MVAR "M1"
+05 MVAR "M2"
 06 RCL "M1"
 07 1/X
 08 RCL "M2"
 09 1/X
 10 +
 11 1/X
-12 16605390666ᴇ-37
+12 1.6605390666ᴇ-27     @ 1 amu in kg
 13 ×
-14 STO 01
-15 1054571817ᴇ-43
-16 X↑2
-17 2
-18 ÷
-19 RCL÷ 01
-20 RCL "a/a0"
-21 529177210903ᴇ-22
-22 ×
-23 X↑2
+14 STO 01               @ REG 01 now contains reduced mass
+15 DROP
+16 2
+17 -1.5
+18 Y↑X
+19 0.75
+20 GAMMA
+21 ×
+22 1.25
+23 GAMMA
 24 ÷
-25 662607015ᴇ-42
-26 ÷
-27 RCL- "E/Hz"
-28 END
+25 2
+26 RCL× 01
+27 RCL "C6/au"          @ do not use RCL× due to finite calculator precision
+28 9.57343644ᴇ-80       @ (this factor converts from atomic units to SI)
+29 ×                    @ instead bring first to SI units...
+30 ×                    @ ...so that now the exponents are more similar
+31 1.054571817ᴇ-34      @ reduced Planck constant
+32 X↑2
+33 ÷
+34 0.25
+35 Y↑X
+36 ×
+37 5.29177210903ᴇ-11    @ Bohr radius (a0)
+38 ÷
+39 RCL- "r0/a0"
+40 END
 

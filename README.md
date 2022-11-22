@@ -73,8 +73,11 @@ the target unit and the converted value will be shown.
 ### E_b: Estimate binding energy of two-species Feshbach molecules
 
 This program is intended for use with the Solver application and converts
-between molecular binding energy `E/Hz` and effective scattering length
-`a/a0`, given the masses (in amu) of the two atomic species involved.
+between molecular binding energy `E/Hz` and effective scattering length `a/a0`,
+given the masses (in amu) of the two atomic species involved and the finite
+interaction range correction `r0/a0`. This range correction factor is related
+to the C6 coefficient and can be determined with the `C6-r0` helper program
+(which is also intended for use with the Solver).
 
 ### FORT: Calculate trap parameters of a crossed beam optical trap
 
